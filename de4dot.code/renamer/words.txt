@@ -1,0 +1,382 @@
+tomato番茄，西红柿
+asparagus芦笋
+cucumber 黄瓜
+aubergine, eggplant 茄子
+bean 菜豆
+broad bean 蚕豆
+pea 豌豆
+soy bean 黄豆
+string bean 豇豆
+sword bean 刀豆
+small red bean 赤豆
+lentil 兵豆
+chick-pea 鹰嘴豆
+French bean 法国菜豆
+lupin 羽扇豆（美作：lupine）
+Chinese wax gourd 冬瓜
+pumpkin 南瓜
+rape 油菜
+savoy 塌菜 （皱叶甘蓝）
+spinach 菠菜
+beet, beetroot 甜菜
+pepper 胡椒
+pimiento 甜椒
+potato 马铃薯
+carrot 胡萝卜
+cauliflower 菜花，花椰菜
+pumpkin 西葫芦
+cabbage 圆白菜，卷心菜
+Chinese cabbage 大白菜
+chilli 辣椒
+garlic 蒜
+chive 葱
+fennel 茴香
+turnip 芜菁
+watercress 豆瓣菜
+cos lettuce 莴苣
+marrow 嫩葫芦
+melon 香瓜，甜瓜
+mushroom, celery 芹菜
+onion 韭
+leek 韭菜
+lily 百合
+lotus root 藕
+radish 萝卜
+tarragon 狭叶青蒿
+thyme 百里香
+mushroom 蘑菇
+artichoke 洋蓟
+broccoli, brocoli 硬花甘蓝
+Brussels sprouts 芽甘蓝
+caper 刺山柑,老鼠瓜
+cardoon 刺菜蓟
+chervil 雪维菜，细叶芹
+chicory 苣荬菜
+cress 水田芥
+cumin, cummin 孜然芹，枯茗
+dandelion蒲公英
+gherkin 嫩黄瓜
+horseradish 辣根
+Jerusalem artichoke洋姜，鬼子姜
+kale 无头甘蓝
+kohlrabi 甘蓝
+laurel 月桂
+lettuce 莴苣
+parsley 欧芹
+parsnip 欧防风
+rhubarb大黄
+salsify 婆罗门参
+sorrel 掌叶大黄
+truffle 块菌
+horse马
+mare 母马
+colt, foal 马驹，小马
+pony 矮马
+thoroughbred 纯种马
+mustang 野马
+mule 骡
+ass, donkey 驴
+ox 牛
+buffalo 水牛
+bull 公牛
+cow 母牛
+calf 小牛，牛犊
+bullock, steer 小阉牛
+heifer 小母牛
+pig, swine 猪
+boar 种猪
+hog 阉猪，肥猪
+gilt 小母猪
+piglet 猪崽
+sheep 羊
+ewe母羊
+goat 山羊
+lamb 羊羔，羔羊
+zebra 斑马
+antilope 羚羊
+gazelle 小羚羊
+deer 鹿
+reindeer 驯鹿
+giraffe 长颈鹿
+camel 骆驼
+dromedary 单峰驼
+llama 大羊驼
+guanaco原驼
+alpaca 羊驼 
+vicuna 小羊驼
+elephant 象
+rhinoceros 犀牛
+hippopotamus 河马
+cat 猫
+tabby, she-cat, grimalkin 雌猫
+tomcat 雄猫, 公猫
+kitten, kitty, pussy 小猫
+lion 狮
+lynx 猞猁
+panther, puma 美洲豹
+leopard 豹
+tiger 虎
+wildcat 野猫
+bison 美洲野牛
+yak 牦牛
+dog 狗
+badger獾
+weasel 鼬，黄鼠狼
+otter 水獭
+fox 狐
+hyena, hyaena 鬣狗
+wolf 狼
+squirrel松鼠
+dormouse 睡鼠
+beaver 河狸
+marmot 土拨鼠
+ferret 雪貂
+bear 熊
+rabbit 兔子
+hare野兔
+rat 鼠
+chinchilla南美栗鼠
+gopher囊地鼠
+Guinea pig豚鼠
+marmot 土拨鼠
+mole 鼹鼠
+mouse 家鼠
+vole田鼠
+monkey 猴子
+chimpanzee 黑猩猩
+gorilla 大猩猩
+orangutan 猩猩
+gibbon 长臂猿
+sloth 獭猴
+anteater食蚁兽
+duckbill, platypus鸭嘴兽
+kangaroo 袋鼠
+koala 考拉，树袋熊
+hedgehog 刺猬
+porcupine 箭猪，豪猪
+bat 蝙蝠
+armadillo 犰狳
+whale 鲸
+dolphin河豚
+porpoise 大西洋鼠海豚
+seal 海豹
+walrus海象
+eagle 鹰
+bald eagle 白头鹰
+condor 秃鹰
+hawk, falcon 隼
+heron 苍鹰
+golden eagle鹫
+kite 鹞
+vulture 秃鹫
+cock 公鸡
+hen母鸡
+chicken 鸡，雏鸡
+guinea, fowl 珍珠鸡
+turkey火鸡
+peacock孔雀
+duck 鸭
+mallard 野鸭，凫
+teal 小野鸭
+gannet 塘鹅
+goose 鹅
+pelican 鹈鹕
+cormorant 鸬鹚
+swan 天鹅
+cob 雄天鹅
+cygnet 小天鹅
+gander, wild goose 雁
+dove鸽
+pigeon 野鸽
+turtle dove 斑鸠
+pheasant 雉，野鸡
+grouse 松鸡
+partridge 石鸡，鹧鸪
+ptarmigan 雷鸟
+quail 鹌鹑
+ostrich 鸵鸟
+stork 鹳
+woodcock 山鹬
+snipe鹬
+gull, seagull 海鸥
+albatross 信天翁
+kingfisher 翠鸟
+bird of paradise 极乐鸟，天堂鸟
+woodpecker 啄木鸟
+parrot 鹦鹉
+cockatoo 大葵花鹦鹉
+macaw 金刚鹦鹉
+parakeet 长尾鹦鹉
+cuckoo 杜鹃，布谷鸟
+crow 乌鸦
+blackbird 乌鸫
+magpie 喜鹊
+swallow 燕子
+sparrow 麻雀
+nightingale 夜莺
+canary 金丝雀
+starling 八哥
+thrush 画眉
+goldfinch 金翅雀
+chaffinch 苍头燕雀
+robin 知更鸟
+plover 千鸟
+lark百鸟，云雀
+swift 褐雨燕
+whitethroat 白喉雀
+hummingbird 蜂雀
+penguin 企鹅
+owl 枭，猫头鹰
+scops owl 角枭，耳鸟
+snake 蛇
+adder, viper 蝰蛇
+boa 王蛇
+cobra 眼镜蛇
+copperhead 美洲腹蛇
+coral snake 银环蛇
+grass snake 草蛇
+moccasin嗜鱼蛇
+python 蟒蛇
+rattlesnake 响尾蛇
+lizard 蜥蜴
+tuatara 古蜥蜴
+chameleon 变色龙，避役
+iguana 鬣蜥
+wall lizard 壁虎
+salamander, triton, newt 蝾螈
+giant salamander 娃娃鱼，鲵
+crocodile 鳄鱼，非洲鳄
+alligator 短吻鳄，美洲鳄
+caiman, cayman 凯门鳄
+gavial印度鳄
+turtle 龟
+tortoise玳瑁
+sea turtle 海龟
+frog 青蛙
+bullfrog 牛蛙
+toad 蟾蜍 
+almond杏仁
+apple苹果
+apple core苹果核
+apple juice苹果汁
+apple skin苹果皮
+apricot杏子
+apricot flesh杏肉
+apricot pit杏核
+areca nut槟榔子
+banana香蕉
+banana skin香蕉皮
+bargain price廉价
+beechnut山毛榉坚果
+beijing flowering crab海棠果
+bitter苦的
+bitterness苦味
+bitter orange酸橙
+blackberry黑莓
+canned fruit罐头水果
+carambola杨桃
+cherry樱桃
+cherry pit樱桃核
+cherry pulp樱桃肉
+chestnut栗子
+chinese chestnut板栗
+chinese date枣
+chinese gooseberry猕猴桃
+chinese walnut山核桃
+coconut椰子
+coconut milk椰奶
+coconut water椰子汁
+cold storage冷藏
+cold store冷藏库
+crisp脆的
+cumquat金桔
+damson plum西洋李子
+dangshan pear砀山梨
+date枣
+date pit枣核
+decayed fruit烂果
+downy pitch毛桃
+dry fruit干果
+duke公爵樱桃
+early-maturing早熟的
+fig无花果
+filbert榛子
+first class一等地，甲等的
+flat peach蟠桃
+flavour味道
+flesh果肉
+flesh fruit肉质果
+fresh新鲜的
+fresh litchi鲜荔枝
+fruiterer水果商
+fruit in bags袋装水果
+fruit knife水果刀
+fruits of the season应时水果
+gingko白果，银杏
+give full weigh分量准足
+give short weight短斤缺两
+grape葡萄
+grape juice葡萄汁
+grape skin葡萄皮
+grapestone葡萄核
+greengage青梅
+hami melon哈密瓜
+hard坚硬的
+haw山楂果
+hawthorn山楂
+hazel榛子
+honey peach水蜜桃
+in season应时的
+juicy多汁的
+juicy peach水蜜桃
+jujube枣
+kernel仁
+kumquat金桔
+late-maturing晚熟的
+lemon柠檬
+litchi荔枝
+litchi rind荔枝皮
+longan桂圆，龙眼
+longan pulp桂圆肉，龙眼肉
+loguat枇杷
+mandarine柑桔
+mango芒果
+mature成熟的
+morello黑樱桃
+muskmelon香瓜，甜瓜
+navel orange脐橙
+nut坚果
+nut meat坚果仁
+nut shell坚果壳
+oleaster沙枣
+olive橄榄
+orange柑桔
+orange peel柑桔皮
+papaya木瓜
+peach桃子
+pear梨
+perishable易腐烂的
+pineapple菠萝
+plum李子
+plumcot李杏
+pomegranate石榴
+pomelo柚子，文旦
+red bayberry杨梅
+reduced price处理价
+ripe成熟的
+rotten fruit烂果
+seasonable应时的
+seedless orange无核桔
+special-grade特级的
+strawberry草莓
+sultana无核小葡萄
+superfine特级的
+tangerine柑桔
+tart酸的
+tender嫩的
+tinned fruit罐头水果
+unripe未成熟的
+walnut胡桃，核桃
+walnut kernel核桃仁
+water chestnut荸荠
+watermelon西
