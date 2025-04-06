@@ -1,10 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="..\De4DotCommon.props" />
-
+  <PropertyGroup>
+    <TargetFrameworks></TargetFrameworks>
+    <TargetFramework>net9.0-windows10.0.17763.0</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\de4dot.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\de4dot.blocks\de4dot.blocks.csproj" />
     <ProjectReference Include="..\de4dot.code\de4dot.code.csproj" />
   </ItemGroup>
-
 </Project>

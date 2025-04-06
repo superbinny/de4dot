@@ -28,7 +28,6 @@ using dnlib.PE;
 using de4dot.blocks;
 using de4dot.blocks.cflow;
 using HelpUtil;
-using Binny.Core.BaseFunction;
 
 namespace de4dot.code.deobfuscators {
 	public abstract class DeobfuscatorBase : IDeobfuscator, IModuleWriterListener 
@@ -123,8 +122,8 @@ namespace de4dot.code.deobfuscators {
 				InitKeywordFile();
 			}
 			if (m_module_file != "") {
-				string sNewName = Funcs.GetBaseFileName(m_keywords_file) + Funcs.GetBaseFileName(m_module_file) + ".lst";
-				m_module_log_file = Funcs.GetNewFileName(_module_file, sNewName);
+				string sNewName = BaseFunction.GetBaseFileName(m_keywords_file) + BaseFunction.GetBaseFileName(m_module_file) + ".lst";
+				m_module_log_file = BaseFunction.GetNewFileName(_module_file, sNewName);
 			}
 		}
 
@@ -204,7 +203,7 @@ namespace de4dot.code.deobfuscators {
 				InitKeywordFile();
 			}
 			if (m_keywords_file != "" && File.Exists(m_keywords_file)) {
-				List<string> rows = Funcs.BnGetFileLines(m_keywords_file);
+				List<string> rows = BaseFunction.BnGetFileLines(m_keywords_file);
 				mValidWords = new List<string>();
 				foreach (string keys in rows) {
 					string no_space = keys.Replace(" ", "");
@@ -251,7 +250,7 @@ namespace de4dot.code.deobfuscators {
 								"The word is less than 3 : please add \"{0}\" to {1}, save to {2}", 
 								getListString(mUnmarkWords),
 								BaseFunction.GetShortCrackPath(m_keywords_file),
-                                BaseFunction.GetShortCrackPath(m_module_log_file));
+								BaseFunction.GetShortCrackPath(m_module_log_file));
 						}
 					}
 				}

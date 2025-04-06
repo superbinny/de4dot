@@ -17,7 +17,7 @@
     along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace de4dot_x86 {
+namespace de4dot {
 	class Program {
 		static int Main(string[] args) => de4dot.cui.Program.Main(args);
 	}

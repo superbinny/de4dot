@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks></TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\de4dot.snk</AssemblyOriginatorKeyFile>
     <Features>strict</Features>
     <LangVersion>latest</LangVersion>
     <OutputPath>..\$(Configuration)</OutputPath>
+    <TargetFramework>net9.0-windows10.0.17763.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

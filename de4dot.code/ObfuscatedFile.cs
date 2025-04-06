@@ -32,6 +32,7 @@ using de4dot.blocks.cflow;
 using de4dot.code.AssemblyClient;
 using de4dot.code.renamer;
 using HelpUtil;
+using Fake.Core;
 
 namespace de4dot.code {
 	public class ObfuscatedFile : IObfuscatedFile, IDeobfuscatedFile {
@@ -114,9 +115,9 @@ namespace de4dot.code {
 			userStringDecrypterMethods = options.StringDecrypterMethods.Count > 0;
 			options.Filename = Utils.GetFullPath(options.Filename);
 			assemblyModule = new AssemblyModule(options.Filename, moduleContext);
-			// Binny ÐÞ¸Ä
-			Mono.Cecil.AssemblyDefinition asm = Mono.Cecil.AssemblyDefinition.ReadAssembly(options.Filename);
-			Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> c = asm.MainModule.Assembly.CustomAttributes;
+			// Binny ä¿®æ”¹
+			//Mono.Cecil.AssemblyDefinition asm = Mono.Cecil.AssemblyDefinition.ReadAssembly(options.Filename);
+			//Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> c = asm.MainModule.Assembly.CustomAttributes;
 
 			if (options.NewFilename == null)
 				options.NewFilename = GetDefaultNewFilename();
