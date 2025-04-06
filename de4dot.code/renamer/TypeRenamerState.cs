@@ -52,7 +52,12 @@ namespace de4dot.code.renamer {
 			var key = $" [{type.Module.Location}] [{asmFullName}] [{type.Module.Name}] [{ns}] ";
 			if (namespaceToNewName.TryGetValue(key, out string newName))
 				return newName;
-			return namespaceToNewName[key] = createNamespaceName.Create();
+			// Binny ÐÞ¸Ä
+			string new_name = createNamespaceName.Create();
+			// Binny ÐÞ¸Ä
+			namespaceToNewName[key] = new_name + ns;
+			// Binny ÐÞ¸Ä
+			return namespaceToNewName[key];
 		}
 	}
 }

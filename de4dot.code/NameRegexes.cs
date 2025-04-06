@@ -39,7 +39,10 @@ namespace de4dot.code {
 		}
 
 		// Returns true if the regex matches. Use MatchValue to get result.
-		public bool IsMatch(string s) => regex.IsMatch(s);
+		// Binny 修改
+		public bool IsMatch(string s) {
+			return regex.IsMatch(s);
+		}
 
 		public override string ToString() {
 			if (!MatchValue)
@@ -66,12 +69,21 @@ namespace de4dot.code {
 		}
 
 		public bool IsMatch(string s) {
+			// Binny 修改
+			bool isMatch = true;
 			foreach (var regex in regexes) {
-				if (regex.IsMatch(s))
-					return regex.MatchValue;
+				if (!regex.MatchValue) {
+					//以!开始的正则表达式
+					if (regex.IsMatch(s))
+						return DefaultValue;
+				}
+				else {
+					if (!regex.IsMatch(s))
+						return DefaultValue;
+				}
 			}
 
-			return DefaultValue;
+			return isMatch;
 		}
 
 		public override string ToString() {

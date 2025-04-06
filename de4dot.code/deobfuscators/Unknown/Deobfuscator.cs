@@ -45,6 +45,11 @@ namespace de4dot.code.deobfuscators.Unknown {
 
 		internal class Options : OptionsBase {
 		}
+		
+		// Binny 添加，用于随机给方法改名
+		static readonly Regex isRandomName = new Regex(@"^[A-Z]{30,40}$");
+		static readonly Regex isRandomNameMembers = new Regex(@"^[a-zA-Z0-9]{9,11}$");
+		static readonly Regex isRandomNameTypes = new Regex(@"^[a-zA-Z0-9]{18,20}(?:`\d+)?$");   // types, namespaces
 
 		public override string Type => DeobfuscatorInfo.THE_TYPE;
 		public override string TypeLong => DeobfuscatorInfo.THE_NAME;
@@ -66,6 +71,7 @@ namespace de4dot.code.deobfuscators.Unknown {
 		protected override void ScanForObfuscator() {
 		}
 
+
 		string ScanTypes() {
 			foreach (var type in module.Types) {
 				var fn = type.FullName;
@@ -79,6 +85,55 @@ namespace de4dot.code.deobfuscators.Unknown {
 					return "Yano Obfuscator";
 			}
 			return null;
+		}
+		
+		// Binny 添加，用于随机给方法改名
+		private bool IsLoValidName(string name) {
+			if (name.Contains("j__TPar>")) {
+				name = name;
+			}
+			if (name == null)
+				return false;
+			if (!CheckValidName(name))
+				return false;
+			return true;
+			//return DeobfuscatorBase.CheckValidName(name, false);
+		}
+		// Binny 修改
+		public override bool IsValidTypeName(string name) {
+			return DeobfuscatorBase.CheckValidName(name);
+		}
+		// Binny 修改
+		public override bool IsValidMethodName(string name) {
+			return DeobfuscatorBase.CheckValidName(name);
+		}
+		// Binny 修改
+		public override bool IsValidPropertyName(string name) {
+			return DeobfuscatorBase.CheckValidName(name);
+		}
+		// Binny 修改
+		public override bool IsValidEventName(string name) {
+			return DeobfuscatorBase.CheckValidName(name);
+		}
+		// Binny 修改
+		public override bool IsValidFieldName(string name) {
+			return DeobfuscatorBase.CheckFieldValidName(name);
+		}
+		// Binny 修改
+		public override bool IsValidGenericParamName(string name) {
+			return DeobfuscatorBase.CheckValidName(name);
+		}
+		// Binny 修改
+		public override bool IsValidMethodArgName(string name) {
+			return DeobfuscatorBase.CheckValidName(name);
+		}
+		// Binny 修改
+		public override bool IsValidMethodReturnArgName(string name) {
+			return string.IsNullOrEmpty(name) || IsLoValidName(name);
+		}
+		// Binny 修改
+		public override bool IsValidResourceKeyName(string name) {
+			return DeobfuscatorBase.CheckValidName(name);
 		}
 
 		public override IEnumerable<int> GetStringDecrypterMethods() => new List<int>();

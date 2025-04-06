@@ -183,7 +183,8 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 				return false;
 			if (ns.Contains("."))
 				return base.IsValidNamespaceName(ns);
-			return CheckValidName(ns, isRandomNameTypes);
+			// Binny Ìí¼Ó
+			return CheckValidName(ns, isRandomNameTypes) && ns.Length > 2;
 		}
 
 		public override bool IsValidTypeName(string name) => name != null && CheckValidName(name, isRandomNameTypes);

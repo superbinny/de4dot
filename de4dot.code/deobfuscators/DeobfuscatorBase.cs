@@ -18,16 +18,23 @@
 */
 
 using System;
+using System.IO;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using dnlib.DotNet.Writer;
 using dnlib.PE;
 using de4dot.blocks;
 using de4dot.blocks.cflow;
+using HelpUtil;
+using Binny.Core.BaseFunction;
 
 namespace de4dot.code.deobfuscators {
-	public abstract class DeobfuscatorBase : IDeobfuscator, IModuleWriterListener {
+	public abstract class DeobfuscatorBase : IDeobfuscator, IModuleWriterListener 
+	{
+		// Binny 添加
+		//所有以“a-zA-Z_<{$”开始，以 “a-zA-Z_0-9<>{}$.`-”结尾的都合法
 		public const string DEFAULT_VALID_NAME_REGEX = @"^[a-zA-Z_<{$][a-zA-Z_0-9<>{}$.`-]*$";
 		public const string DEFAULT_ASIAN_VALID_NAME_REGEX = @"^[\u2E80-\u9FFFa-zA-Z_<{$][\u2E80-\u9FFFa-zA-Z_0-9<>{}$.`-]*$";
 
@@ -55,6 +62,12 @@ namespace de4dot.code.deobfuscators {
 		bool keepTypes;
 		MetadataFlags? mdFlags;
 		Dictionary<object, bool> objectsThatMustBeKept = new Dictionary<object, bool>();
+		// Binny 添加
+		static string m_keywords_file = "";
+		static List<string> mValidWords = null;
+		public static List<string> mUnmarkWords = new List<string>();
+		static string m_module_file = "";
+		public static string m_module_log_file = "";
 
 		protected byte[] ModuleBytes {
 			get => moduleBytes;
@@ -96,6 +109,24 @@ namespace de4dot.code.deobfuscators {
 				return list;
 			}
 		}
+		
+		// Binny 添加
+		static void InitKeywordFile() {
+			string path = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+			string curr_path = Path.GetDirectoryName(path);
+			m_keywords_file = Path.Combine(curr_path, "keywords.lst");
+		}
+		// Binny 修改
+		static public void set_module_file(string _module_file) {
+			m_module_file = _module_file;
+			if (m_keywords_file == "") {
+				InitKeywordFile();
+			}
+			if (m_module_file != "") {
+				string sNewName = Funcs.GetBaseFileName(m_keywords_file) + Funcs.GetBaseFileName(m_module_file) + ".lst";
+				m_module_log_file = Funcs.GetNewFileName(_module_file, sNewName);
+			}
+		}
 
 		public DeobfuscatorBase(OptionsBase optionsBase) {
 			this.optionsBase = optionsBase;
@@ -120,7 +151,218 @@ namespace de4dot.code.deobfuscators {
 						MetadataFlags.PreserveExtraSignatureData;
 		}
 
-		protected virtual bool CheckValidName(string name) => optionsBase.ValidNameRegex.IsMatch(name);
+		// Binny 添加
+		private static string[] msSpec = new string[]
+		{
+					"<", //less than
+					">", //more than
+					"`", //Period
+					"$", //Dollar
+					"!", //Exclamation Mark
+					"{",
+					"}",
+					"[",
+					"]",
+					"?",
+					"&",
+					"-",
+					"/",
+					"\\",
+					"@",
+					"=",
+					"."
+		};
+		// Binny 修改
+		private static string[] msReplaceSpec = new string[]
+		{
+			"LT", //< less than
+			"MT", //> more than
+			"PD", //` Period
+			"DL", //$ Dollar
+			"EM", //! Exclamation Mark
+            "LC", //{ left curly brackets
+            "RC", //} right curly brackets
+            "LB", //[ left square brackets
+            "RB", //] right square brackets
+			"QT", //? Question
+			"AN", //& And
+            "HY", //- hyphen
+			"LS", /// Left Slash
+			"BS", //\ Back Slash
+			"AT", //@ At
+			"EQ", //= Equal
+			"DT"  //. dot
+		};
+
+		// Binny 修改
+		private static bool isNumeric(string value) {
+			return Regex.IsMatch(value, @"^\d*$");
+		}
+		// Binny 修改
+		private static void LoadKeyWords() {
+			if (m_keywords_file == "") {
+				InitKeywordFile();
+			}
+			if (m_keywords_file != "" && File.Exists(m_keywords_file)) {
+				List<string> rows = Funcs.BnGetFileLines(m_keywords_file);
+				mValidWords = new List<string>();
+				foreach (string keys in rows) {
+					string no_space = keys.Replace(" ", "");
+					if (no_space.Length > 0) {
+						string[] keywords = no_space.Split(',');
+						foreach(string key in keywords)
+						{
+							if (key.Length > 0 && !mValidWords.Contains(key))
+								mValidWords.Add(key.ToLower());
+							else if( key.Length > 0)
+								break;
+						}
+					}
+				}
+			}
+			else {
+				Console.WriteLine("Cannot find the file {0}",  m_keywords_file);
+			}
+		}
+		// Binny 修改
+		public static string getListString(List<string> lst) {
+			string ret = "";
+			foreach (string s in lst) {
+				ret += s + ", ";
+			}
+			return ret.Substring(0, ret.Length - 1);
+		}
+		// Binny 修改
+		private static bool isValidShortName(string name) {
+			bool ret = false;
+			string name_low = name.ToLower();
+			if (mValidWords == null) {
+				LoadKeyWords();
+			}
+			ret = mValidWords.Contains(name_low);
+			if (!ret && name_low.Length > 1) {
+				ret = isNumeric(name_low.Substring(1, name_low.Length - 1));
+				if (!ret) {
+					if (!HasSpecial(name)) {
+						if (!mUnmarkWords.Contains(name.ToLower())) {
+							mUnmarkWords.Add(name.ToLower());
+							mUnmarkWords.Sort();
+							Console.WriteLine(
+								"The word is less than 3 : please add \"{0}\" to {1}, save to {2}", 
+								getListString(mUnmarkWords),
+								BaseFunction.GetShortCrackPath(m_keywords_file),
+                                BaseFunction.GetShortCrackPath(m_module_log_file));
+						}
+					}
+				}
+			}
+			return ret;
+		}
+		// Binny 修改
+		private static bool HasSpecial(string name, bool has_point=false)
+		{
+			int maxlen = msSpec.Length;
+			if (!has_point)
+				maxlen -= 1;
+
+			for (int i = 0; i < maxlen; i++)
+			{
+				if (name.IndexOf(msSpec[i]) > -1)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		// Binny 修改
+		private static bool onlySpecial(string name, string special, bool has_point = false) {
+			string s = name;
+			foreach(char c in special) {
+				s = s.Replace(c.ToString(), "");
+			}
+			return !HasSpecial(s, has_point);
+		}
+		// Binny 修改
+		private static bool IsValidNameSpaceName(string name, bool has_point=false, bool no_left_angle_bracket=false) {
+			string s = name.Replace("::", "");
+			bool ret = true;
+			s = s.Replace("`", "");
+			if (HasSpecial(s, has_point))
+			{
+				ret = false;
+			}
+			return ret;
+		}
+		// Binny 修改
+		private static bool IsValidName(string name, bool has_point=false, bool no_left_angle_bracket=false, bool check_length_less_3 = true) {
+			bool result = true;
+
+			if (name == ".ctor" || name == ".cctor")
+				return true;
+
+			if (name == "")
+				return false;
+
+			string name_low = name.ToLower();
+			if (check_length_less_3 && name.Length <= 3)
+			{
+				result = isValidShortName(name.Replace("_", ""));
+			}
+			else if (name.Length > 150) {
+				return false;
+			}
+			else 
+			{
+				//是否以数字开头
+				if (char.IsNumber(name[0]))
+					return false;
+
+				if (name == "<Module>")
+					return false;
+
+				result = IsValidNameSpaceName(name, has_point, no_left_angle_bracket);
+			}
+			return result;
+		}
+		// Binny 修改
+		//has_point表示，如果带小数点也非法
+		public static bool CheckValidName(string name, bool has_point=false) {
+			if (name == null)
+				return false;
+			return IsValidName(name, has_point);
+		}
+		// Binny 修改
+		//has_point表示，如果带小数点也非法
+		public static bool CheckNamespaceValidName(string name) {
+			if (name == null) return false;
+			return IsValidName(name, false, true, false);
+		}
+		// Binny 修改
+		//has_point表示，如果带小数点也非法
+		public static bool CheckFieldValidName(string name) {
+			return IsValidName(name, has_point:false, no_left_angle_bracket:true, check_length_less_3:true); //字段中不能包含点和尖括号
+		}
+		// Binny 修改
+		//has_point表示，如果带小数点也非法，类名
+		public static bool CheckMamberValidName(string name) {
+			return IsValidName(name, true, true); //字段中不能包含点和尖括号
+		}
+		// Binny 修改
+		public static string ReplaceValidName(string name, bool no_point = false) {
+			int maxlen = msSpec.Length;
+			if (no_point) maxlen -= 1;
+			string name_new = name;
+			for (int i = 0; i < maxlen; i++) {
+				name_new = name_new.Replace(msSpec[i], msReplaceSpec[i]);
+			}
+			return name_new;
+		}
+
+		protected virtual bool CheckValidName(string name) {
+			//return optionsBase.ValidNameRegex.IsMatch(name);
+			//Binny 修改，因为用正则表达式还是很多的不确定
+			return IsValidName(name, false);
+		}
 
 		public virtual int Detect() {
 			ScanForObfuscator();
@@ -243,8 +485,12 @@ namespace de4dot.code.deobfuscators {
 		public abstract IEnumerable<int> GetStringDecrypterMethods();
 
 		class MethodCallRemover {
-			Dictionary<string, MethodDefAndDeclaringTypeDict<bool>> methodNameInfos = new Dictionary<string, MethodDefAndDeclaringTypeDict<bool>>();
-			MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>> methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
+			// Binny 添加
+			Dictionary<string, MethodDefAndDeclaringTypeDict<bool>> methodNameInfos =
+				new Dictionary<string, MethodDefAndDeclaringTypeDict<bool>>();
+			// Binny 修改
+			MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>> methodRefInfos = 
+				new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
 
 			void CheckMethod(IMethod methodToBeRemoved) {
 				var sig = methodToBeRemoved.MethodSig;
@@ -657,22 +903,34 @@ namespace de4dot.code.deobfuscators {
 		public virtual bool IsValidNamespaceName(string ns) {
 			if (ns == null)
 				return false;
+			// Binny 添加
 			foreach (var part in ns.Split(new char[] { '.' })) {
-				if (!CheckValidName(part))
+				// Binny 修改
+				if (!CheckNamespaceValidName(part))
 					return false;
 			}
-			return true;
+			// Binny 添加
+			return CheckValidName(ns, false);
 		}
+		// Binny 添加
+		private bool IsLoValidName(string name) {
+			if (name == null)
+				return false;
+			if (!CheckValidName(name))
+				return false;
+			return CheckValidName(name, false);
+		}
+		// Binny 添加
+		public virtual bool IsValidTypeName(string name) => IsLoValidName(name);
+		public virtual bool IsValidMethodName(string name) => IsLoValidName(name);
+		public virtual bool IsValidPropertyName(string name) => IsLoValidName(name);
+		public virtual bool IsValidEventName(string name) => IsLoValidName(name);
+		public virtual bool IsValidFieldName(string name) =>  IsLoValidName(name);
+		public virtual bool IsValidGenericParamName(string name) => IsLoValidName(name);
+		public virtual bool IsValidMethodArgName(string name) => IsLoValidName(name);
+		public virtual bool IsValidMethodReturnArgName(string name) => string.IsNullOrEmpty(name) || IsValidName(name);
+		public virtual bool IsValidResourceKeyName(string name) => IsLoValidName(name);
 
-		public virtual bool IsValidTypeName(string name) => name != null && CheckValidName(name);
-		public virtual bool IsValidMethodName(string name) => name != null && CheckValidName(name);
-		public virtual bool IsValidPropertyName(string name) => name != null && CheckValidName(name);
-		public virtual bool IsValidEventName(string name) => name != null && CheckValidName(name);
-		public virtual bool IsValidFieldName(string name) => name != null && CheckValidName(name);
-		public virtual bool IsValidGenericParamName(string name) => name != null && CheckValidName(name);
-		public virtual bool IsValidMethodArgName(string name) => name != null && CheckValidName(name);
-		public virtual bool IsValidMethodReturnArgName(string name) => string.IsNullOrEmpty(name) || CheckValidName(name);
-		public virtual bool IsValidResourceKeyName(string name) => name != null && CheckValidName(name);
 		public virtual void OnWriterEvent(ModuleWriterBase writer, ModuleWriterEvent evt) { }
 		protected void FindAndRemoveInlinedMethods() => RemoveInlinedMethods(InlinedMethodsFinder.Find(module));
 		protected void RemoveInlinedMethods(List<MethodDef> inlinedMethods) =>

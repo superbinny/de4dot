@@ -211,7 +211,8 @@ namespace de4dot.code.renamer {
 						continue;
 
 					Logger.w("File '{0}' contains XAML which isn't supported. Use --dont-rename.", file.Filename);
-					return;
+					// Binny 修改
+					continue;
 				}
 			}
 		}
@@ -341,8 +342,10 @@ namespace de4dot.code.renamer {
 		void Rename(MTypeDef type) {
 			var typeDef = type.TypeDef;
 			var info = memberInfos.Type(type);
-
-			if (isVerbose)
+			// Binny 修改
+			bool has_print = false;
+			// Binny 修改
+			if (isVerbose && false)
 				Logger.v("Type: {0} ({1:X8})", Utils.RemoveNewlines(typeDef.FullName), typeDef.MDToken.ToUInt32());
 			Logger.Instance.Indent();
 
@@ -351,15 +354,31 @@ namespace de4dot.code.renamer {
 			if (RenameTypes && info.GotNewName()) {
 				var old = typeDef.Name;
 				typeDef.Name = info.newName;
-				if (isVerbose)
-					Logger.v("Name: {0} => {1}", Utils.RemoveNewlines(old), Utils.RemoveNewlines(typeDef.Name));
+				// Binny 修改
+				if (isVerbose) {
+					if (!has_print) {
+						Logger.Instance.DeIndent();
+						Logger.v("Type: {0} ({1:X8})", Utils.RemoveNewlines(typeDef.FullName), typeDef.MDToken.ToUInt32());
+						Logger.Instance.Indent();
+						has_print = true;
+					}
+					Logger.v("*Rename* /Rename.RenameTypes/ Name: {0} => {1}", Utils.RemoveNewlines(old), Utils.RemoveNewlines(typeDef.Name));
+				}
 			}
 
 			if (RenameNamespaces && info.newNamespace != null) {
 				var old = typeDef.Namespace;
 				typeDef.Namespace = info.newNamespace;
-				if (isVerbose)
-					Logger.v("Namespace: {0} => {1}", Utils.RemoveNewlines(old), Utils.RemoveNewlines(typeDef.Namespace));
+				// Binny 修改
+				if (isVerbose) {
+					if (!has_print) {
+						Logger.Instance.DeIndent();
+						Logger.v("Type: {0} ({1:X8})", Utils.RemoveNewlines(typeDef.FullName), typeDef.MDToken.ToUInt32());
+						Logger.Instance.Indent();
+						has_print = true;
+					}
+					Logger.v("*Rename* /Rename.RenameNamespaces/Namespace: {0} => {1}", Utils.RemoveNewlines(old), Utils.RemoveNewlines(typeDef.Namespace));
+				}
 			}
 
 			Logger.Instance.DeIndent();
@@ -374,7 +393,8 @@ namespace de4dot.code.renamer {
 					continue;
 				param.GenericParam.Name = info.newName;
 				if (isVerbose)
-					Logger.v("GenParam: {0} => {1}", Utils.RemoveNewlines(info.oldFullName), Utils.RemoveNewlines(param.GenericParam.FullName));
+					// Binny 修改
+					Logger.v("*Rename* /RenameGenericParams2/ GenParam: {0} => {1}", Utils.RemoveNewlines(info.oldFullName), Utils.RemoveNewlines(param.GenericParam.FullName));
 			}
 		}
 
@@ -417,11 +437,13 @@ namespace de4dot.code.renamer {
 				if (isDelegateType && DontRenameDelegateFields)
 					continue;
 				fieldDef.FieldDef.Name = fieldInfo.newName;
-				if (isVerbose)
-					Logger.v("Field: {0} ({1:X8}) => {2}",
+				// Binny 修改
+				if (isVerbose) {
+					Logger.v("*Rename* /RenameFields2/ Field: {0} ({1:X8}) => {2}",
 							Utils.RemoveNewlines(fieldInfo.oldFullName),
 							fieldDef.FieldDef.MDToken.ToUInt32(),
 							Utils.RemoveNewlines(fieldDef.FieldDef.FullName));
+				}
 			}
 		}
 
@@ -433,8 +455,9 @@ namespace de4dot.code.renamer {
 				if (!propInfo.GotNewName())
 					continue;
 				propDef.PropertyDef.Name = propInfo.newName;
+				// Binny 修改
 				if (isVerbose)
-					Logger.v("Property: {0} ({1:X8}) => {2}",
+					Logger.v("*Rename* /RenameProperties2/ Property: {0} ({1:X8}) => {2}",
 							Utils.RemoveNewlines(propInfo.oldFullName),
 							propDef.PropertyDef.MDToken.ToUInt32(),
 							Utils.RemoveNewlines(propDef.PropertyDef.FullName));
@@ -449,8 +472,9 @@ namespace de4dot.code.renamer {
 				if (!eventInfo.GotNewName())
 					continue;
 				eventDef.EventDef.Name = eventInfo.newName;
+				// Binny 修改
 				if (isVerbose)
-					Logger.v("Event: {0} ({1:X8}) => {2}",
+					Logger.v("*Rename* /RenameEvents2/ Event: {0} ({1:X8}) => {2}",
 							Utils.RemoveNewlines(eventInfo.oldFullName),
 							eventDef.EventDef.MDToken.ToUInt32(),
 							Utils.RemoveNewlines(eventDef.EventDef.FullName));
@@ -461,17 +485,26 @@ namespace de4dot.code.renamer {
 			if (!RenameMethods && !RenameMethodArgs && !RenameGenericParams)
 				return;
 			foreach (var methodDef in info.type.AllMethodsSorted) {
+				// Binny 修改
+				bool has_print = false;
 				var methodInfo = memberInfos.Method(methodDef);
-				if (isVerbose)
+				if (isVerbose && false)
 					Logger.v("Method {0} ({1:X8})", Utils.RemoveNewlines(methodInfo.oldFullName), methodDef.MethodDef.MDToken.ToUInt32());
 				Logger.Instance.Indent();
 
 				RenameGenericParams2(methodDef.GenericParams);
-
 				if (RenameMethods && methodInfo.GotNewName()) {
 					methodDef.MethodDef.Name = methodInfo.newName;
-					if (isVerbose)
-						Logger.v("Name: {0} => {1}", Utils.RemoveNewlines(methodInfo.oldFullName), Utils.RemoveNewlines(methodDef.MethodDef.FullName));
+					// Binny 修改
+					if (isVerbose) {
+						if (!has_print) {
+							Logger.Instance.DeIndent();
+							Logger.v("Method {0} ({1:X8})", Utils.RemoveNewlines(methodInfo.oldFullName), methodDef.MethodDef.MDToken.ToUInt32());
+							Logger.Instance.Indent();
+							has_print = true;
+						}
+						Logger.v("*Rename* /RenameMethods2.MethodDef/ Name: {0} => {1}", Utils.RemoveNewlines(methodInfo.oldFullName), Utils.RemoveNewlines(methodDef.MethodDef.FullName));
+					}
 				}
 
 				if (RenameMethodArgs) {
@@ -485,11 +518,19 @@ namespace de4dot.code.renamer {
 							param.ParameterDef.CreateParamDef();
 						}
 						param.ParameterDef.Name = paramInfo.newName;
+						// Binny 修改
 						if (isVerbose) {
+							if (!has_print) {
+								Logger.Instance.DeIndent();
+								Logger.v("Method {0} ({1:X8})", Utils.RemoveNewlines(methodInfo.oldFullName), methodDef.MethodDef.MDToken.ToUInt32());
+								Logger.Instance.Indent();
+								has_print = true;
+							}
+							// Binny 修改
 							if (param.IsReturnParameter)
-								Logger.v("RetParam: {0} => {1}", Utils.RemoveNewlines(paramInfo.oldName), Utils.RemoveNewlines(paramInfo.newName));
+								Logger.v("*Rename* /RenameMethods2.ParameterDef/ RetParam: {0} => {1}", Utils.RemoveNewlines(paramInfo.oldName), Utils.RemoveNewlines(paramInfo.newName));
 							else
-								Logger.v("Param ({0}/{1}): {2} => {3}", param.ParameterDef.MethodSigIndex + 1, methodDef.MethodDef.MethodSig.GetParamCount(), Utils.RemoveNewlines(paramInfo.oldName), Utils.RemoveNewlines(paramInfo.newName));
+								Logger.v("*Rename* /RenameMethods2.ParameterDef/ Param ({0}/{1}): {2} => {3}", param.ParameterDef.MethodSigIndex + 1, methodDef.MethodDef.MethodSig.GetParamCount(), Utils.RemoveNewlines(paramInfo.oldName), Utils.RemoveNewlines(paramInfo.newName));
 						}
 					}
 				}
@@ -505,14 +546,34 @@ namespace de4dot.code.renamer {
 				if (modules.TheModules.Count > 1 && isVerbose)
 					Logger.v("Renaming references to other definitions ({0})", module.Filename);
 				Logger.Instance.Indent();
-				foreach (var refToDef in module.MethodRefsToRename)
-					refToDef.reference.Name = refToDef.definition.Name;
-				foreach (var refToDef in module.FieldRefsToRename)
-					refToDef.reference.Name = refToDef.definition.Name;
-				foreach (var info in module.CustomAttributeFieldRefs)
-					info.cattr.NamedArguments[info.index].Name = info.reference.Name;
-				foreach (var info in module.CustomAttributePropertyRefs)
-					info.cattr.NamedArguments[info.index].Name = info.reference.Name;
+				// Binny 修改
+				foreach (var refToDef in module.MethodRefsToRename) {
+					if (refToDef.reference.Name != refToDef.definition.Name) {
+						Logger.v("*Rename* /RenameMemberRefs.MethodRefsToRename/ {0} => {1}", Utils.RemoveNewlines(refToDef.reference.Name), Utils.RemoveNewlines(refToDef.definition.Name));
+						refToDef.reference.Name = refToDef.definition.Name;
+					}
+				}
+				// Binny 修改
+				foreach (var refToDef in module.FieldRefsToRename) {
+					if (refToDef.reference.Name != refToDef.definition.Name) {
+						Logger.v("*Rename* /RenameMemberRefs.FieldRefsToRename/ {0} => {1}", Utils.RemoveNewlines(refToDef.reference.Name), Utils.RemoveNewlines(refToDef.definition.Name));
+						refToDef.reference.Name = refToDef.definition.Name;
+					}
+				}
+				// Binny 修改
+				foreach (var info in module.CustomAttributeFieldRefs) {
+					if (info.cattr.NamedArguments[info.index].Name != info.reference.Name) {
+						Logger.v("*Rename* /RenameMemberRefs.CustomAttributeFieldRefs/ {0} => {1}", Utils.RemoveNewlines(info.cattr.NamedArguments[info.index].Name), Utils.RemoveNewlines(info.reference.Name));
+						info.cattr.NamedArguments[info.index].Name = info.reference.Name;
+					}
+				}
+				// Binny 修改
+				foreach (var info in module.CustomAttributePropertyRefs) {
+					if (info.cattr.NamedArguments[info.index].Name != info.reference.Name) {
+						Logger.v("*Rename* /RenameMemberRefs.CustomAttributePropertyRefs/ {0} => {1}", Utils.RemoveNewlines(info.reference.Name), Utils.RemoveNewlines(info.reference.Name));
+						info.cattr.NamedArguments[info.index].Name = info.reference.Name;
+					}
+				}
 				Logger.Instance.DeIndent();
 			}
 		}

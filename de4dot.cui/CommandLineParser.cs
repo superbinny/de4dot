@@ -361,7 +361,10 @@ namespace de4dot.cui {
 			Exit(2);
 		}
 
-		void Exit(int exitCode) => throw new ExitException(exitCode);
+		void Exit(int exitCode) {
+			// Binny 修改，保持继续运行
+			//throw new ExitException(exitCode);
+		}
 
 		void Usage() {
 			string progName = GetProgramBaseName();

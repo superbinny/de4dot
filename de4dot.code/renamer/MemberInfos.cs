@@ -19,21 +19,108 @@
 
 using System.Collections.Generic;
 using de4dot.code.renamer.asmmodules;
+// Binny 添加
+using de4dot.code.deobfuscators;
+using dnlib.DotNet;
+
 
 namespace de4dot.code.renamer {
 	public class MemberInfo {
 		protected Ref memberRef;
 		public string oldFullName;
-		public string oldName;
-		public string newName;
 		public bool renamed;
-		public string suggestedName;
-
-		public MemberInfo(Ref memberRef) {
+		// Binny 修改
+		private string _suggestedName;
+		// Binny 添加
+		private string _newName;
+		private string _oldName;
+		TypeRenamerState state = new TypeRenamerState();
+		public string suggestedName {
+			set {
+				_suggestedName = value;
+			}
+			get {
+				return _suggestedName;
+			}
+		}
+		// Binny 修改
+		public string newName {
+			set {
+				if (value.Contains("SystemDTCollectionsDTIEnumerableDTGetEnumerator")) {
+					_newName = _newName;
+				}
+				_newName = value;
+			}
+			get {
+				return _newName;
+			}
+		}
+		// Binny 修改
+		private string rename_field(FieldDef typeDef, string newBaseTypeName) {
+			return state.internalTypeNameCreator.Create(typeDef, newBaseTypeName);
+		}
+		// Binny 修改
+		public string newFieldName {
+			set {
+				if (!DeobfuscatorBase.CheckFieldValidName(value)) {
+					newName = DeobfuscatorBase.ReplaceValidName(value);
+					if (newName.Length <= 3) {
+						FieldDef def = (FieldDef)this.memberRef.memberRef;
+						string new_name = rename_field(def, this.memberRef.memberRef.Name.String);
+						new_name += "_" + this.memberRef.memberRef.Name.String;
+						Rename(new_name);
+					}
+				}
+				else {
+					newName = value;
+				}
+			}
+			get {
+				return newName;
+			}
+		}
+		// Binny 修改
+		public string newTypeName {
+			set {
+				if (!DeobfuscatorBase.CheckMamberValidName(value)) {
+					// 允许小数点
+					newName = DeobfuscatorBase.ReplaceValidName(value, true);
+				}
+				else {
+					newName = value;
+				}
+			}
+			get {
+				return newName;
+			}
+		}
+		// Binny 修改
+		public string oldName {
+			set {
+				_oldName = value;
+			}
+			get {
+				return _oldName;
+			}
+		}
+		// Binny 添加
+		public MemberInfo(Ref memberRef, int type_index) {
 			this.memberRef = memberRef;
 			oldFullName = memberRef.memberRef.FullName;
 			oldName = memberRef.memberRef.Name.String;
-			newName = memberRef.memberRef.Name.String;
+			// Binny 添加
+			if (type_index == 1)//Type
+				newTypeName = memberRef.memberRef.Name.String;
+			else if (type_index == 2)//GenericParamInfo
+				newTypeName = memberRef.memberRef.Name.String;
+			else if (type_index == 3)//PropertyInfo
+				newTypeName = memberRef.memberRef.Name.String;
+			else if (type_index == 4)//MemberInfo
+				newTypeName = memberRef.memberRef.Name.String;
+			else if (type_index == 5)//FieldInfo
+				newFieldName = memberRef.memberRef.Name.String;
+			else if (type_index == 6)//MethodInfo
+				newTypeName = memberRef.memberRef.Name.String;
 		}
 
 		public void Rename(string newTypeName) {
@@ -46,24 +133,28 @@ namespace de4dot.code.renamer {
 	}
 
 	public class GenericParamInfo : MemberInfo {
-		public GenericParamInfo(MGenericParamDef genericParamDef) : base(genericParamDef) { }
+		public GenericParamInfo(MGenericParamDef genericParamDef) : base(genericParamDef, 2) { }
 	}
 
 	public class PropertyInfo : MemberInfo {
-		public PropertyInfo(MPropertyDef propertyDef) : base(propertyDef) { }
+		// Binny 修改
+		public PropertyInfo(MPropertyDef propertyDef) : base(propertyDef, 3) { }
 	}
 
 	public class EventInfo : MemberInfo {
-		public EventInfo(MEventDef eventDef) : base(eventDef) { }
+		// Binny 修改
+		public EventInfo(MEventDef eventDef) : base(eventDef, 4) { }
 	}
 
 	public class FieldInfo : MemberInfo {
-		public FieldInfo(MFieldDef fieldDef) : base(fieldDef) { }
+		// Binny 修改
+		public FieldInfo(MFieldDef fieldDef) : base(fieldDef, 5) { }
 	}
 
 	public class MethodInfo : MemberInfo {
 		public MMethodDef MethodDef => (MMethodDef)memberRef;
-		public MethodInfo(MMethodDef methodDef) : base(methodDef) { }
+		// Binny 修改
+		public MethodInfo(MMethodDef methodDef) : base(methodDef, 6) { }
 	}
 
 	public class ParamInfo {
@@ -190,7 +281,14 @@ namespace de4dot.code.renamer {
 		public bool TryGetType(MTypeDef t, out TypeInfo info) => allTypeInfos.TryGetValue(t, out info);
 		public bool TryGetEvent(MEventDef e, out EventInfo info) => allEventInfos.TryGetValue(e, out info);
 		public bool TryGetProperty(MPropertyDef p, out PropertyInfo info) => allPropertyInfos.TryGetValue(p, out info);
-		public PropertyInfo Property(MPropertyDef prop) => allPropertyInfos[prop];
+		// Binny 添加
+		public PropertyInfo Property(MPropertyDef prop) {
+			var oldFullName = allPropertyInfos[prop].suggestedName;
+			if (oldFullName == null) {
+				oldFullName = allPropertyInfos[prop].newName;
+			}
+			return allPropertyInfos[prop];
+		}
 		public EventInfo Event(MEventDef evt) => allEventInfos[evt];
 		public FieldInfo Field(MFieldDef field) => allFieldInfos[field];
 		public MethodInfo Method(MMethodDef method) => allMethodInfos[method];

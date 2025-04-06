@@ -28,7 +28,8 @@ namespace de4dot.code.renamer {
 		public void Add(string name) => allNames[name] = true;
 		public bool Exists(string name) => allNames.ContainsKey(name);
 		public string GetName(UTF8String oldName, INameCreator nameCreator) => GetName(UTF8String.ToSystemStringOrEmpty(oldName), nameCreator);
-		public string GetName(string oldName, INameCreator nameCreator) => GetName(oldName, () => nameCreator.Create());
+		// Binny Ìí¼Ó
+		public string GetName(string oldName, INameCreator nameCreator) => GetName(oldName, () => nameCreator.Create(oldName));
 		public string GetName(UTF8String oldName, Func<string> createNewName) => GetName(UTF8String.ToSystemStringOrEmpty(oldName), createNewName);
 
 		public string GetName(string oldName, Func<string> createNewName) {

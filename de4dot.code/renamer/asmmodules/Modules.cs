@@ -20,6 +20,8 @@
 using System;
 using System.Collections.Generic;
 using dnlib.DotNet;
+// Binny 修改
+using de4dot.code.deobfuscators;
 
 namespace de4dot.code.renamer.asmmodules {
 	public class Modules : IResolver {
@@ -127,7 +129,13 @@ namespace de4dot.code.renamer.asmmodules {
 
 		public void Initialize() {
 			initializeCalled = true;
-			FindAllMemberRefs();
+			// Binny 修改
+			if (false) {
+				FindAllMemberRefs();
+			}
+			else {
+				FindAllMemberRefsUseMono();
+			}
 			InitAllTypes();
 			ResolveAllRefs();
 		}
@@ -140,6 +148,18 @@ namespace de4dot.code.renamer.asmmodules {
 					Logger.v("Finding all MemberRefs ({0})", module.Filename);
 				Logger.Instance.Indent();
 				module.FindAllMemberRefs(ref index);
+				Logger.Instance.DeIndent();
+			}
+		}
+		// Binny 修改
+		void FindAllMemberRefsUseMono() {
+			Logger.v("Finding all MemberRefs use Mono");
+			int index = 0;
+			foreach (var module in modules) {
+				if (modules.Count > 1)
+					Logger.v("Finding all MemberRefs ({0})", module.Filename);
+				Logger.Instance.Indent();
+				module.FindAllMemberRefsUseMono(ref index);
 				Logger.Instance.DeIndent();
 			}
 		}
@@ -414,6 +434,10 @@ namespace de4dot.code.renamer.asmmodules {
 			if (modules == null)
 				return null;
 			foreach (var module in modules) {
+				// Binny 修改
+				if (!DeobfuscatorBase.CheckValidName(typeRef.Name))
+					Logger.v($"find ResolveType: {typeRef.Name}");
+
 				var rv = module.ResolveType(typeRef);
 				if (rv != null)
 					return rv;

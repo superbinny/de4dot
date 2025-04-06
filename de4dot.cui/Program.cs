@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,7 +24,7 @@ using dnlib.DotNet;
 using de4dot.code;
 using de4dot.code.deobfuscators;
 using System.IO;
-using System.Reflection;
+using RE = System.Reflection;
 
 namespace de4dot.cui {
 	class ExitException : Exception {
@@ -34,14 +34,40 @@ namespace de4dot.cui {
 
 	class Program {
 		static IList<IDeobfuscatorInfo> deobfuscatorInfos = CreateDeobfuscatorInfos();
+		// Binny 修改
+		private static AssemblyDefinition _asm;
 
-		static IList<IDeobfuscatorInfo> LoadPlugin(string assembly) {
+		private static IList<IDeobfuscatorInfo> LoadPlugin(string assembly, bool use_mono) {
 			var plugins = new List<IDeobfuscatorInfo>();
 			try {
-				foreach (var item in Assembly.LoadFile(assembly).GetTypes()) {
-					var interfaces = new List<Type>(item.GetInterfaces());
-					if (item.IsClass && interfaces.Contains(typeof(IDeobfuscatorInfo)))
-						plugins.Add((IDeobfuscatorInfo)Activator.CreateInstance(item));
+				// Binny 修改
+				if (use_mono) {
+					_asm = AssemblyDefinition.ReadAssembly(assembly);
+					int count = _asm.MainModule.Types.Count;
+					Logger.n("共：" + count + "类");
+
+					try {
+						foreach (Mono.Cecil.TypeDefinition item in _asm.MainModule.Types) {
+							//var interfaces = new List<Type>(item.GetType()));
+							foreach (Mono.Cecil.TypeDefinition NestedTypes in item.NestedTypes) {
+							}
+						}
+
+					}
+					catch (Exception e) {
+						Console.WriteLine(e);
+					}
+
+					_asm.MainModule.Write(assembly);
+					Logger.n("完成\n");
+
+				}
+				else {
+					foreach (var item in RE.Assembly.LoadFile(assembly).GetTypes()) {
+						var interfaces = new List<Type>(item.GetInterfaces());
+						if (item.IsClass && interfaces.Contains(typeof(IDeobfuscatorInfo)))
+							plugins.Add((IDeobfuscatorInfo)Activator.CreateInstance(item));
+					}
 				}
 			}
 			catch {
@@ -49,12 +75,13 @@ namespace de4dot.cui {
 			return plugins;
 		}
 
-		public static void GetPlugins(string directory, ref Dictionary<string, IDeobfuscatorInfo> result) {
+		public static void GetPlugins(string directory, ref Dictionary<string, IDeobfuscatorInfo> result, bool use_mono) {
 			var plugins = new List<IDeobfuscatorInfo>();
 			try {
 				var files = Directory.GetFiles(directory, "deobfuscator.*.dll", SearchOption.TopDirectoryOnly);
 				foreach (var file in files)
-					plugins.AddRange(LoadPlugin(Path.GetFullPath(file)));
+					// Binny 修改
+					plugins.AddRange(LoadPlugin(Path.GetFullPath(file), use_mono));
 			}
 			catch {
 			}
@@ -91,7 +118,8 @@ namespace de4dot.cui {
 			foreach (var d in local)
 				dict[d.Type] = d;
 			string pluginDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin");
-			GetPlugins(pluginDir, ref dict);
+			// Binny 修改
+			GetPlugins(pluginDir, ref dict, true);
 			return new List<IDeobfuscatorInfo>(dict.Values);
 		}
 
@@ -99,20 +127,23 @@ namespace de4dot.cui {
 			int exitCode = 0;
 
 			const string showAllMessagesEnvName = "SHOWALLMESSAGES";
-			try {
+			// Binny 修改
+			//try {
 				if (Console.OutputEncoding.IsSingleByte || Console.OutputEncoding.CodePage == 437)
 					Console.OutputEncoding = new UTF8Encoding(false);
 
 				Logger.Instance.CanIgnoreMessages = !HasEnv(showAllMessagesEnvName);
 
 				Logger.n("");
-				Logger.n("de4dot v{0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+				Logger.n("de4dot v{0} Copyright (C) 2011-2015 de4dot@gmail.com", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+				Logger.n("Latest version and source code: https://github.com/0xd4d/de4dot");
 				Logger.n("");
 
 				var options = new FilesDeobfuscator.Options();
 				ParseCommandLine(args, options);
 				new FilesDeobfuscator(options).DoIt();
-			}
+			// Binny 修改
+			/*}
 			catch (ExitException ex) {
 				exitCode = ex.code;
 			}
@@ -123,14 +154,14 @@ namespace de4dot.cui {
 			catch (Exception ex) {
 				if (PrintFullStackTrace()) {
 					PrintStackTrace(ex);
-					Logger.Instance.LogErrorDontIgnore("\nTry the latest version!");
+					Logger.Instance.LogErrorDontIgnore("\nTry the latest version !");
 				}
 				else {
 					Logger.Instance.LogErrorDontIgnore("\n\n");
 					Logger.Instance.LogErrorDontIgnore("Hmmmm... something didn't work. Try the latest version.");
 				}
 				exitCode = 1;
-			}
+			}*/
 
 			if (Logger.Instance.NumIgnoredMessages > 0) {
 				if (Logger.Instance.NumIgnoredMessages == 1)

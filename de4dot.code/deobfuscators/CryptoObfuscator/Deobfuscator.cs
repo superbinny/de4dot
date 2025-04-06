@@ -28,7 +28,18 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 	public class DeobfuscatorInfo : DeobfuscatorInfoBase {
 		public const string THE_NAME = "Crypto Obfuscator";
 		public const string THE_TYPE = "co";
-		const string DEFAULT_REGEX = @"!^(get_|set_|add_|remove_)?[A-Z]{1,3}(?:`\d+)?$&!^(get_|set_|add_|remove_)?c[0-9a-f]{32}(?:`\d+)?$&" + DeobfuscatorBase.DEFAULT_ASIAN_VALID_NAME_REGEX;
+		// Binny 修改
+		//? 为非贪婪匹配
+		//(?:pattern)是非捕获型括号  匹配pattern，但不捕获匹配结果。
+
+		//^(get_|set_|add_|remove_)?[A-Z]{1,3}，匹配前面以get_|set_|add_|remove_开头的，最多3个具有A-Z开始的名称，例如get_ABCDE=>get_ABC
+		//!^(get_|set_|add_|remove_)?[A-Z]{1,3}(?:`\d+)?$，如果出现类似 get_ABC`3333的字符，则非法
+		//!^(get_|set_|add_|remove_)?c[0-9a-f]{32}(?:`\d+)?$，如果出现类似 get_c123abc...，以c开始后接32个十六进制字符串的也为非法
+		//^[\u2E80-\u9FFFa-zA-Z_<{$]所有以表格中的字符开始的，包括中文开始
+		//[\u2E80-\u9FFFa-zA-Z_0-9<>{}$.`-]*$，以这些字符结尾的
+		//DEFAULT_ASIAN_VALID_NAME_REGEX=^[\u2E80-\u9FFFa-zA-Z_<{$][\u2E80-\u9FFFa-zA-Z_0-9<>{}$.`-]*$
+		//2019-5-6将?去掉，以前是!^(get_|set_|add_|remove_)?[A-Z]{1,3}(?:`\d+)?$
+		const string DEFAULT_REGEX = @"!^(get_|set_|add_|remove_)[A-Z]{1,3}(?:`\d+)?$&!^(get_|set_|add_|remove_)?c[0-9a-f]{32}(?:`\d+)?$&" + DeobfuscatorBase.DEFAULT_ASIAN_VALID_NAME_REGEX;
 		BoolOption removeTamperProtection;
 		BoolOption decryptConstants;
 		BoolOption inlineMethods;

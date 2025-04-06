@@ -82,8 +82,10 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 
 			return defaultName;
 		}
-
-		public string Decrypt(int index) {
+		// Binny ÐÞ¸Ä
+		public string Decrypt(int index) { 
+			if (decryptedData == null)
+				return "";
 			int len = DeobUtils.ReadVariableLengthInt32(decryptedData, ref index);
 			return Encoding.Unicode.GetString(decryptedData, index, len);
 		}

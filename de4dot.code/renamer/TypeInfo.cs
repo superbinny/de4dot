@@ -24,6 +24,9 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using de4dot.code.renamer.asmmodules;
 using de4dot.blocks;
+// Binny 修改
+using de4dot.code.deobfuscators;
+using System.Linq;
 
 namespace de4dot.code.renamer {
 	public class TypeInfo : MemberInfo {
@@ -36,14 +39,18 @@ namespace de4dot.code.renamer {
 		public INameChecker NameChecker => type.Module.ObfuscatedFile.NameChecker;
 
 		public TypeInfo(MTypeDef typeDef, MemberInfos memberInfos)
-			: base(typeDef) {
+			// Binny 修改
+			: base(typeDef, 1) {
 			type = typeDef;
 			this.memberInfos = memberInfos;
 			oldNamespace = typeDef.TypeDef.Namespace.String;
 		}
 
 		bool IsWinFormsClass() => memberInfos.IsWinFormsClass(type);
-		public PropertyInfo Property(MPropertyDef prop) => memberInfos.Property(prop);
+		public PropertyInfo Property(MPropertyDef prop) {
+			// Binny 修改
+			return memberInfos.Property(prop);
+		}
 		public EventInfo Event(MEventDef evt) => memberInfos.Event(evt);
 		public FieldInfo Field(MFieldDef field) => memberInfos.Field(field);
 		public MethodInfo Method(MMethodDef method) => memberInfos.Method(method);
@@ -66,8 +73,11 @@ namespace de4dot.code.renamer {
 			if (newNamespace == null && oldNamespace != "") {
 				if (type.TypeDef.IsNested)
 					newNamespace = "";
-				else if (!checker.IsValidNamespaceName(oldNamespace))
-					newNamespace = state.CreateNamespace(type.TypeDef, oldNamespace);
+				else if (!checker.IsValidNamespaceName(oldNamespace)) {
+					// Binny 修改
+					string old = DeobfuscatorBase.ReplaceValidName(oldNamespace);
+					newNamespace = state.CreateNamespace(type.TypeDef, old);
+				}
 			}
 
 			string origClassName = null;
@@ -87,9 +97,21 @@ namespace de4dot.code.renamer {
 											state.internalTypeNameCreator;
 					string newBaseType = null;
 					var baseInfo = GetBase();
-					if (baseInfo != null && baseInfo.renamed)
+					// Binny 修改
+					string new_name;
+					if (baseInfo != null && baseInfo.renamed) {
 						newBaseType = baseInfo.newName;
-					Rename(nameCreator.Create(type.TypeDef, newBaseType));
+						new_name = nameCreator.Create(type.TypeDef, newBaseType);
+					}
+					else if (oldName.Length == 33)
+						new_name = nameCreator.Create(type.TypeDef, newBaseType);
+					else {
+						new_name = DeobfuscatorBase.ReplaceValidName(oldName);
+						if (new_name.Length <= 3)
+							new_name = nameCreator.Create(type.TypeDef, new_name);
+					}
+					Rename(new_name);
+					Logger.v($"*Rename* /PrepareRenameTypes/ {oldName} => {new_name}");
 				}
 			}
 
@@ -138,10 +160,12 @@ namespace de4dot.code.renamer {
 		void PrepareRenameFields() {
 			var checker = NameChecker;
 
-			if (type.TypeDef.IsEnum) {
+			if (type.TypeDef.IsEnum) 
+			{
 				var instanceFields = GetInstanceFields();
-				if (instanceFields.Count == 1)
+				if (instanceFields.Count == 1) {
 					Field(instanceFields[0]).Rename("value__");
+				}
 
 				int i = 0;
 				string nameFormat = HasFlagsAttribute() ? "flag_{0}" : "const_{0}";
@@ -151,17 +175,27 @@ namespace de4dot.code.renamer {
 						continue;
 					if (!fieldDef.FieldDef.IsStatic || !fieldDef.FieldDef.IsLiteral)
 						continue;
-					if (!checker.IsValidFieldName(fieldInfo.oldName))
-						fieldInfo.Rename(string.Format(nameFormat, i));
+					if (!checker.IsValidFieldName(fieldInfo.oldName)) {
+						string new_name = string.Format(nameFormat, i);
+						// Binny 修改
+						fieldInfo.Rename(new_name);
+						Logger.v($"*Rename* /PrepareRenameFields.IsEnum/ {fieldInfo.oldName} => {new_name}");
+					}
 					i++;
 				}
 			}
-			foreach (var fieldDef in type.AllFieldsSorted) {
+			foreach (MFieldDef fieldDef in type.AllFieldsSorted) {
 				var fieldInfo = Field(fieldDef);
+
 				if (fieldInfo.renamed)
 					continue;
-				if (!checker.IsValidFieldName(fieldInfo.oldName))
-					fieldInfo.Rename(fieldInfo.suggestedName ?? variableNameState.GetNewFieldName(fieldDef.FieldDef));
+				if (!checker.IsValidFieldName(fieldInfo.oldName)) {
+					// Binny 修改
+					string new_default = variableNameState.GetNewFieldName(fieldDef.FieldDef);
+					string new_name = fieldInfo.suggestedName ?? DeobfuscatorBase.ReplaceValidName(fieldDef.FieldDef.Name);
+					fieldInfo.Rename(new_name);
+					Logger.v($"*Rename* /PrepareRenameFields/ {fieldDef.FieldDef.Name} => {new_name}, default is {new_default }");
+				}
 			}
 		}
 
@@ -193,13 +227,18 @@ namespace de4dot.code.renamer {
 		void PrepareRenameProperty(MPropertyDef propDef) {
 			if (propDef.IsVirtual())
 				throw new ApplicationException("Can't rename virtual props here");
+			// Binny 修改
+			if (propDef.ToString() == "<n>j__TPar LTMTf__AnonymousType0`2`2::n()") {
+				string aa = "aa";
+			}
 			var propInfo = Property(propDef);
 			if (propInfo.renamed)
 				return;
 
 			string propName = propInfo.oldName;
+			// Binny 修改
 			if (!NameChecker.IsValidPropertyName(propName))
-				propName = propInfo.suggestedName;
+				propName = DeobfuscatorBase.ReplaceValidName(propName);
 			if (!NameChecker.IsValidPropertyName(propName)) {
 				if (propDef.IsItemProperty())
 					propName = "Item";
@@ -260,10 +299,17 @@ namespace de4dot.code.renamer {
 
 		public void PrepareRenameMethods2() {
 			var checker = NameChecker;
+			int index = 0;
 			foreach (var methodDef in type.AllMethodsSorted) {
-				PrepareRenameMethodArgs(methodDef);
+				index++;
+                PrepareRenameMethodArgs(methodDef);
 				PrepareRenameGenericParams(methodDef.GenericParams, checker, methodDef.Owner?.GenericParams);
-			}
+				if (index % 100==0)
+				{
+                    Logger.v($"正在处理  {index} /{type.AllMethodsSorted.Count()}...");
+                }
+
+            }
 		}
 
 		void PrepareRenameMethodArgs(MMethodDef methodDef) {
@@ -410,10 +456,11 @@ namespace de4dot.code.renamer {
 
 			foreach (var param in genericParams) {
 				var gpInfo = memberInfos.GenericParam(param);
-				if (!checker.IsValidGenericParamName(gpInfo.oldName) || usedNames.ContainsKey(gpInfo.oldName)) {
-					string newName;
+				// Binny 修改
+				string newName = DeobfuscatorBase.ReplaceValidName(gpInfo.oldName);
+				if (!checker.IsValidGenericParamName(newName) || usedNames.ContainsKey(newName)) {
 					do {
-						newName = nameCreator.Create();
+						newName = nameCreator.Create(newName);
 					} while (usedNames.ContainsKey(newName));
 					usedNames[newName] = true;
 					gpInfo.Rename(newName);
@@ -482,8 +529,12 @@ namespace de4dot.code.renamer {
 
 					if (fieldInfo.renamed)
 						continue;
-
-					fieldInfo.suggestedName = variableNameState.GetNewFieldName(fieldInfo.oldName, new NameCreator2(fieldName));
+					// Binny 修改
+					string suggestedName = variableNameState.GetNewFieldName(fieldInfo.oldName, new NameCreator2(fieldName));
+					if (suggestedName == null) {
+						suggestedName = fieldInfo.oldName + "_SuggestedName";
+					}
+					fieldInfo.suggestedName = suggestedName;
 				}
 			}
 		}

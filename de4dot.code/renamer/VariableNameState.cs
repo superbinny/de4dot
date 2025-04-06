@@ -86,7 +86,8 @@ namespace de4dot.code.renamer {
 			if (IsGeneric(propType))
 				newName = existingPropertyNames.GetName(propertyDef.Name, genericPropertyNameCreator);
 			else
-				newName = existingPropertyNames.GetName(propertyDef.Name, () => propertyNameCreator.Create(propType));
+				// Binny ÐÞ¸Ä
+				newName = existingPropertyNames.GetName(propertyDef.Name, () => propertyNameCreator.Create(propType, propertyDef.Name));
 			AddPropertyName(newName);
 			return newName;
 		}
@@ -114,9 +115,9 @@ namespace de4dot.code.renamer {
 		public bool IsMethodNameUsed(string methodName) => existingMethodNames.Exists(methodName);
 		public bool IsPropertyNameUsed(string propName) => existingPropertyNames.Exists(propName);
 		public bool IsEventNameUsed(string eventName) => existingEventNames.Exists(eventName);
-		public string GetNewFieldName(FieldDef field) => existingVariableNames.GetName(field.Name, () => variableNameCreator.Create(field.FieldSig.GetFieldType()));
-		public string GetNewFieldName(string oldName, INameCreator nameCreator) => existingVariableNames.GetName(oldName, () => nameCreator.Create());
-		public string GetNewParamName(string oldName, Parameter param) => existingVariableNames.GetName(oldName, () => variableNameCreator.Create(param.Type));
+		public string GetNewFieldName(FieldDef field) => existingVariableNames.GetName(field.Name, () => variableNameCreator.Create(field.FieldSig.GetFieldType(), field.Name));
+		public string GetNewFieldName(string oldName, INameCreator nameCreator) => existingVariableNames.GetName(oldName, () => nameCreator.Create(oldName));
+		public string GetNewParamName(string oldName, Parameter param) => existingVariableNames.GetName(oldName, () => variableNameCreator.Create(param.Type, oldName));
 		public string GetNewMethodName(string oldName, INameCreator nameCreator) => existingMethodNames.GetName(oldName, nameCreator);
 	}
 }

@@ -29,11 +29,13 @@ namespace de4dot.code.renamer {
 		protected NameCreator unknownNameCreator = new NameCreator("unknown_");
 		protected Dictionary<string, string> fullNameToShortName;
 		protected Dictionary<string, string> fullNameToShortNamePrefix;
-
-		public string Create(TypeSig typeRef) {
+		
+		// Binny 修改
+		public string Create(TypeSig typeRef, string oldname) {
 			typeRef = typeRef.RemovePinnedAndModifiers();
 			if (typeRef == null)
-				return unknownNameCreator.Create();
+				// Binny 修改
+				return unknownNameCreator.Create(oldname);
 			if (typeRef is GenericInstSig gis) {
 				if (gis.FullName == "System.Nullable`1" &&
 					gis.GenericArguments.Count == 1 && gis.GenericArguments[0] != null) {
@@ -45,13 +47,16 @@ namespace de4dot.code.renamer {
 
 			var elementType = Renamer.GetScopeType(typeRef);
 			if (elementType == null && IsFnPtrSig(typeRef))
-				return fnPtrNameCreator.Create();
+				// Binny 修改
+				return fnPtrNameCreator.Create(oldname);
 			if (IsGenericParam(elementType))
-				return genericParamNameCreator.Create();
+				// Binny 修改
+				return genericParamNameCreator.Create(oldname);
 
 			var typeFullName = typeRef.FullName;
 			if (typeNames.TryGetValue(typeFullName, out var nc))
-				return nc.Create();
+				// Binny 修改
+				return nc.Create(oldname);
 
 			var fullName = elementType == null ? typeRef.FullName : elementType.FullName;
 			var dict = prefix == "" ? fullNameToShortName : fullNameToShortNamePrefix;
@@ -64,8 +69,8 @@ namespace de4dot.code.renamer {
 				if (index > 0)
 					shortName = shortName.Substring(0, index);
 			}
-
-			return AddTypeName(typeFullName, shortName, prefix).Create();
+			// Binny 修改
+			return AddTypeName(typeFullName, shortName, prefix).Create(oldname);
 		}
 
 		bool IsFnPtrSig(TypeSig sig) {

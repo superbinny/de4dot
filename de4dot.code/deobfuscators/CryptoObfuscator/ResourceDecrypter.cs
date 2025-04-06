@@ -346,6 +346,8 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 					sourceStream.Read(iv, 0, 8);
 					provider.IV = iv;
 					provider.Key = GetKey(sourceStream);
+					// Binny ÐÞ¸Ä
+					provider.Key = new byte[] { 0xcf, 0xfe, 0x0e, 0xa6, 0x46, 0xc2, 0xc3, 0xc9 };
 
 					using (var transform = provider.CreateDecryptor()) {
 						while (true) {

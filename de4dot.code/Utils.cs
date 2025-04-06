@@ -97,7 +97,13 @@ namespace de4dot.code {
 		}
 
 		public static string RemoveNewlines(object o) => RemoveNewlines(o.ToString());
-		public static string RemoveNewlines(string s) => s.Replace('\n', ' ').Replace('\r', ' ');
+		// Binny ÐÞ¸Ä
+		public static string RemoveNewlines(string s) {
+			if (s == null)
+				return null;
+			else
+				return s.Replace('\n', ' ').Replace('\r', ' ');
+		}
 
 		public static string GetFullPath(string path) {
 			try {
