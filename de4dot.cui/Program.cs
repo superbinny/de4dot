@@ -42,7 +42,9 @@ namespace de4dot.cui {
 			try {
 				// Binny 修改
 				if (use_mono) {
-					_asm = AssemblyDefinition.ReadAssembly(assembly);
+					DefaultAssemblyResolver assemblyResolver = new DefaultAssemblyResolver(GlobalAssemblyResolver.CurrentAssemblyPathCache);
+					ReaderParameters parameters = new ReaderParameters(assemblyResolver);
+					_asm = AssemblyDefinition.ReadAssembly(assembly, parameters);
 					int count = _asm.MainModule.Types.Count;
 					Logger.n("共：" + count + "类");
 
