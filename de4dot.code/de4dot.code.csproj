@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\De4DotCommon.props" />
 
@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" Condition=" '$(De4DotNetFramework)' != 'true' " />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.2.25163.9" Condition=" '$(De4DotNetFramework)' != 'true' " />
   </ItemGroup>
 
 </Project>
