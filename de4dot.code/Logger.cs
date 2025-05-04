@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using dnlib.DotNet;
 
 namespace de4dot.code {
@@ -29,7 +30,7 @@ namespace de4dot.code {
 		readonly int indentSize = 0;
 		LoggerEvent maxLoggerEvent = LoggerEvent.Info;
 		string indentString = "";
-		Dictionary<string, bool> ignoredMessages = new Dictionary<string, bool>(StringComparer.Ordinal);
+		Dictionary<string, bool> ignoredMessages = new(StringComparer.Ordinal);
 		int numIgnoredMessages;
 		bool canIgnoreMessages;
 
@@ -43,6 +44,9 @@ namespace de4dot.code {
 			}
 		}
 
+		bool is_writeToFile = false;
+		string logFile = "log.txt";
+
 		public LoggerEvent MaxLoggerEvent {
 			get => maxLoggerEvent;
 			set => maxLoggerEvent = value;
@@ -55,11 +59,34 @@ namespace de4dot.code {
 
 		public int NumIgnoredMessages => numIgnoredMessages;
 
+		public string LogFile {
+			get => logFile;
+			set {
+				logFile = value;
+				if (streamWriter != null) {
+					streamWriter.Close();
+				}
+				streamWriter = new StreamWriter(logFile) { AutoFlush = true };
+				IsWriteToFile = true;
+			}
+		}
+
+		public bool IsWriteToFile { get => is_writeToFile; set => is_writeToFile = value; }
+
+		public StreamWriter streamWriter;
+
 		public Logger() : this(2, true) { }
 
 		public Logger(int indentSize, bool canIgnoreMessages) {
 			this.indentSize = indentSize;
 			this.canIgnoreMessages = canIgnoreMessages;
+		}
+
+		public Logger(int indentSize, bool canIgnoreMessages, string logFile) {
+			this.indentSize = indentSize;
+			this.canIgnoreMessages = canIgnoreMessages;
+			LogFile = logFile;
+			IsWriteToFile = true;
 		}
 
 		void InitIndentString() {
@@ -118,7 +145,17 @@ namespace de4dot.code {
 			return false;
 		}
 
+		void WriteMessage(string indent, string format, params object[] args) {
+			if (args == null || args.Length == 0)
+				streamWriter.WriteLine("{0}{1}", indent, format);
+			else
+				streamWriter.WriteLine(indent + format, args);
+		}
+
 		void LogMessage(string indent, string format, params object[] args) {
+			if (IsWriteToFile) {
+				WriteMessage(indent, format, args);
+			}
 			if (args == null || args.Length == 0)
 				Console.WriteLine("{0}{1}", indent, format);
 			else

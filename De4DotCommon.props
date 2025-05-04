@@ -7,7 +7,9 @@
     <!-- Two different sln files are used because some of the projects are only available when targetting .NET Framework -->
     <TargetFrameworks Condition=" '$(De4DotNetFramework)' == 'true' ">net35;net45</TargetFrameworks>
     <TargetFrameworks Condition=" '$(De4DotNetFramework)' != 'true' ">net9.0</TargetFrameworks>
-    
+    <BaseOutputPath>$(CRACK_TOOLS)\0.Tools\de4dot</BaseOutputPath>
+    <OutputPath>$(BaseOutputPath)</OutputPath>
+
     <Features>strict</Features>
     <LangVersion>latest</LangVersion>
     <SignAssembly>true</SignAssembly>

@@ -113,6 +113,9 @@ namespace de4dot.cui {
 			miscOptions.Add(new OneArgOption(null, "asm-path", "Add an assembly search path", "path", (val) => {
 				TheAssemblyResolver.Instance.AddSearchDirectory(val);
 			}));
+			miscOptions.Add(new OneArgOption(null, "log-path", "Add an log file to write the Logger message", "path", (val) => {
+				Logger.Instance.LogFile = val;
+			}));
 			miscOptions.Add(new NoArgOption(null, "dont-rename", "Don't rename classes, methods, etc.", () => {
 				filesOptions.RenameSymbols = false;
 				filesOptions.RenamerFlags = 0;

@@ -2,6 +2,11 @@
 
   <Import Project="..\De4DotCommon.props" />
 
+  <PropertyGroup>
+    <BaseOutputPath>E:\Crack\0.Tools\de4dot</BaseOutputPath>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="dnlib" Version="$(DnlibVersion)" />
   </ItemGroup>
