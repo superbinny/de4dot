@@ -273,7 +273,7 @@ namespace de4dot.code.renamer {
 							continue;
 						if (isVerbose)
 							Logger.v("Removed useless override from method {0} ({1:X8}), override: {2:X8}",
-									Utils.RemoveNewlines(method.MethodDef),
+									Utils.ConvertInvalidString(method.MethodDef),
 									method.MethodDef.MDToken.ToInt32(),
 									overrideMethod.MDToken.ToInt32());
 						overrides.RemoveAt(i);
@@ -323,7 +323,7 @@ namespace de4dot.code.renamer {
 				if (list.Count != maxClasses)
 					continue;
 				if (isVerbose)
-					Logger.v("Removing namespace: {0}", Utils.RemoveNewlines(list[0].TypeDef.Namespace));
+					Logger.v("Removing namespace: {0}", Utils.ConvertInvalidString(list[0].TypeDef.Namespace));
 				foreach (var type in list)
 					memberInfos.Type(type).newNamespace = "";
 			}
@@ -343,7 +343,7 @@ namespace de4dot.code.renamer {
 			var info = memberInfos.Type(type);
 
 			if (isVerbose)
-				Logger.v("Type: {0} ({1:X8})", Utils.RemoveNewlines(typeDef.FullName), typeDef.MDToken.ToUInt32());
+				Logger.v("Type: {0} ({1:X8})", Utils.ConvertInvalidString(typeDef.FullName), typeDef.MDToken.ToUInt32());
 			Logger.Instance.Indent();
 
 			RenameGenericParams2(type.GenericParams);
@@ -352,14 +352,14 @@ namespace de4dot.code.renamer {
 				var old = typeDef.Name;
 				typeDef.Name = info.newName;
 				if (isVerbose)
-					Logger.v("Name: {0} => {1}", Utils.RemoveNewlines(old), Utils.RemoveNewlines(typeDef.Name));
+					Logger.v("Name: {0} => {1}", Utils.ConvertInvalidString(old), Utils.ConvertInvalidString(typeDef.Name));
 			}
 
 			if (RenameNamespaces && info.newNamespace != null) {
 				var old = typeDef.Namespace;
 				typeDef.Namespace = info.newNamespace;
 				if (isVerbose)
-					Logger.v("Namespace: {0} => {1}", Utils.RemoveNewlines(old), Utils.RemoveNewlines(typeDef.Namespace));
+					Logger.v("Namespace: {0} => {1}", Utils.ConvertInvalidString(old), Utils.ConvertInvalidString(typeDef.Namespace));
 			}
 
 			Logger.Instance.DeIndent();
@@ -374,7 +374,7 @@ namespace de4dot.code.renamer {
 					continue;
 				param.GenericParam.Name = info.newName;
 				if (isVerbose)
-					Logger.v("GenParam: {0} => {1}", Utils.RemoveNewlines(info.oldFullName), Utils.RemoveNewlines(param.GenericParam.FullName));
+					Logger.v("GenParam: {0} => {1}", Utils.ConvertInvalidString(info.oldFullName), Utils.ConvertInvalidString(param.GenericParam.FullName));
 			}
 		}
 
@@ -395,7 +395,7 @@ namespace de4dot.code.renamer {
 			var info = memberInfos.Type(type);
 
 			if (isVerbose)
-				Logger.v("Type: {0}", Utils.RemoveNewlines(info.type.TypeDef.FullName));
+				Logger.v("Type: {0}", Utils.ConvertInvalidString(info.type.TypeDef.FullName));
 			Logger.Instance.Indent();
 
 			RenameFields2(info);
@@ -419,9 +419,9 @@ namespace de4dot.code.renamer {
 				fieldDef.FieldDef.Name = fieldInfo.newName;
 				if (isVerbose)
 					Logger.v("Field: {0} ({1:X8}) => {2}",
-							Utils.RemoveNewlines(fieldInfo.oldFullName),
+							Utils.ConvertInvalidString(fieldInfo.oldFullName),
 							fieldDef.FieldDef.MDToken.ToUInt32(),
-							Utils.RemoveNewlines(fieldDef.FieldDef.FullName));
+							Utils.ConvertInvalidString(fieldDef.FieldDef.FullName));
 			}
 		}
 
@@ -435,9 +435,9 @@ namespace de4dot.code.renamer {
 				propDef.PropertyDef.Name = propInfo.newName;
 				if (isVerbose)
 					Logger.v("Property: {0} ({1:X8}) => {2}",
-							Utils.RemoveNewlines(propInfo.oldFullName),
+							Utils.ConvertInvalidString(propInfo.oldFullName),
 							propDef.PropertyDef.MDToken.ToUInt32(),
-							Utils.RemoveNewlines(propDef.PropertyDef.FullName));
+							Utils.ConvertInvalidString(propDef.PropertyDef.FullName));
 			}
 		}
 
@@ -451,9 +451,9 @@ namespace de4dot.code.renamer {
 				eventDef.EventDef.Name = eventInfo.newName;
 				if (isVerbose)
 					Logger.v("Event: {0} ({1:X8}) => {2}",
-							Utils.RemoveNewlines(eventInfo.oldFullName),
+							Utils.ConvertInvalidString(eventInfo.oldFullName),
 							eventDef.EventDef.MDToken.ToUInt32(),
-							Utils.RemoveNewlines(eventDef.EventDef.FullName));
+							Utils.ConvertInvalidString(eventDef.EventDef.FullName));
 			}
 		}
 
@@ -463,7 +463,7 @@ namespace de4dot.code.renamer {
 			foreach (var methodDef in info.type.AllMethodsSorted) {
 				var methodInfo = memberInfos.Method(methodDef);
 				if (isVerbose)
-					Logger.v("Method {0} ({1:X8})", Utils.RemoveNewlines(methodInfo.oldFullName), methodDef.MethodDef.MDToken.ToUInt32());
+					Logger.v("Method {0} ({1:X8})", Utils.ConvertInvalidString(methodInfo.oldFullName), methodDef.MethodDef.MDToken.ToUInt32());
 				Logger.Instance.Indent();
 
 				RenameGenericParams2(methodDef.GenericParams);
@@ -471,7 +471,7 @@ namespace de4dot.code.renamer {
 				if (RenameMethods && methodInfo.GotNewName()) {
 					methodDef.MethodDef.Name = methodInfo.newName;
 					if (isVerbose)
-						Logger.v("Name: {0} => {1}", Utils.RemoveNewlines(methodInfo.oldFullName), Utils.RemoveNewlines(methodDef.MethodDef.FullName));
+						Logger.v("Name: {0} => {1}", Utils.ConvertInvalidString(methodInfo.oldFullName), Utils.ConvertInvalidString(methodDef.MethodDef.FullName));
 				}
 
 				if (RenameMethodArgs) {
@@ -487,9 +487,9 @@ namespace de4dot.code.renamer {
 						param.ParameterDef.Name = paramInfo.newName;
 						if (isVerbose) {
 							if (param.IsReturnParameter)
-								Logger.v("RetParam: {0} => {1}", Utils.RemoveNewlines(paramInfo.oldName), Utils.RemoveNewlines(paramInfo.newName));
+								Logger.v("RetParam: {0} => {1}", Utils.ConvertInvalidString(paramInfo.oldName), Utils.ConvertInvalidString(paramInfo.newName));
 							else
-								Logger.v("Param ({0}/{1}): {2} => {3}", param.ParameterDef.MethodSigIndex + 1, methodDef.MethodDef.MethodSig.GetParamCount(), Utils.RemoveNewlines(paramInfo.oldName), Utils.RemoveNewlines(paramInfo.newName));
+								Logger.v("Param ({0}/{1}): {2} => {3}", param.ParameterDef.MethodSigIndex + 1, methodDef.MethodDef.MethodSig.GetParamCount(), Utils.ConvertInvalidString(paramInfo.oldName), Utils.ConvertInvalidString(paramInfo.newName));
 						}
 					}
 				}
@@ -765,9 +765,9 @@ namespace de4dot.code.renamer {
 				return null;
 			if (isVerbose)
 				Logger.v("Restoring property getter {0} ({1:X8}), Property: {2} ({3:X8})",
-						Utils.RemoveNewlines(propMethod),
+						Utils.ConvertInvalidString(propMethod),
 						propMethod.MethodDef.MDToken.ToInt32(),
-						Utils.RemoveNewlines(propDef.PropertyDef),
+						Utils.ConvertInvalidString(propDef.PropertyDef),
 						propDef.PropertyDef.MDToken.ToInt32());
 			propDef.PropertyDef.GetMethod = propMethod.MethodDef;
 			propDef.GetMethod = propMethod;
@@ -795,9 +795,9 @@ namespace de4dot.code.renamer {
 				return null;
 			if (isVerbose)
 				Logger.v("Restoring property setter {0} ({1:X8}), Property: {2} ({3:X8})",
-						Utils.RemoveNewlines(propMethod),
+						Utils.ConvertInvalidString(propMethod),
 						propMethod.MethodDef.MDToken.ToInt32(),
-						Utils.RemoveNewlines(propDef.PropertyDef),
+						Utils.ConvertInvalidString(propDef.PropertyDef),
 						propDef.PropertyDef.MDToken.ToInt32());
 			propDef.PropertyDef.SetMethod = propMethod.MethodDef;
 			propDef.SetMethod = propMethod;
@@ -821,7 +821,7 @@ namespace de4dot.code.renamer {
 			propDef = ownerType.Create(newProp);
 			memberInfos.Add(propDef);
 			if (isVerbose)
-				Logger.v("Restoring property: {0}", Utils.RemoveNewlines(newProp));
+				Logger.v("Restoring property: {0}", Utils.ConvertInvalidString(newProp));
 			return propDef;
 		}
 
@@ -991,9 +991,9 @@ namespace de4dot.code.renamer {
 				return null;
 			if (isVerbose)
 				Logger.v("Restoring event adder {0} ({1:X8}), Event: {2} ({3:X8})",
-						Utils.RemoveNewlines(eventMethod),
+						Utils.ConvertInvalidString(eventMethod),
 						eventMethod.MethodDef.MDToken.ToInt32(),
-						Utils.RemoveNewlines(eventDef.EventDef),
+						Utils.ConvertInvalidString(eventDef.EventDef),
 						eventDef.EventDef.MDToken.ToInt32());
 			eventDef.EventDef.AddMethod = eventMethod.MethodDef;
 			eventDef.AddMethod = eventMethod;
@@ -1018,9 +1018,9 @@ namespace de4dot.code.renamer {
 				return null;
 			if (isVerbose)
 				Logger.v("Restoring event remover {0} ({1:X8}), Event: {2} ({3:X8})",
-						Utils.RemoveNewlines(eventMethod),
+						Utils.ConvertInvalidString(eventMethod),
 						eventMethod.MethodDef.MDToken.ToInt32(),
-						Utils.RemoveNewlines(eventDef.EventDef),
+						Utils.ConvertInvalidString(eventDef.EventDef),
 						eventDef.EventDef.MDToken.ToInt32());
 			eventDef.EventDef.RemoveMethod = eventMethod.MethodDef;
 			eventDef.RemoveMethod = eventMethod;
@@ -1048,7 +1048,7 @@ namespace de4dot.code.renamer {
 			eventDef = ownerType.Create(newEvent);
 			memberInfos.Add(eventDef);
 			if (isVerbose)
-				Logger.v("Restoring event: {0}", Utils.RemoveNewlines(newEvent));
+				Logger.v("Restoring event: {0}", Utils.ConvertInvalidString(newEvent));
 			return eventDef;
 		}
 
@@ -1772,7 +1772,7 @@ namespace de4dot.code.renamer {
 					continue;
 				var methodDef = modules.ResolveMethod(entryPoint);
 				if (methodDef == null) {
-					Logger.w($"Could not find entry point. Module: {module.ModuleDefMD.Location}, Method: {Utils.RemoveNewlines(entryPoint)}");
+					Logger.w($"Could not find entry point. Module: {module.ModuleDefMD.Location}, Method: {Utils.ConvertInvalidString(entryPoint)}");
 					continue;
 				}
 				if (!methodDef.IsStatic())

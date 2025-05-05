@@ -462,7 +462,7 @@ namespace de4dot.code {
 						}
 					}
 
-					Logger.v("Adding string decrypter; token: {0:X8}, method: {1}", method.MDToken.ToInt32(), Utils.RemoveNewlines(method.FullName));
+					Logger.v("Adding string decrypter; token: {0:X8}, method: {1}", method.MDToken.ToInt32(), Utils.ConvertInvalidString(method.FullName));
 					tokens.Add(method.MDToken.ToInt32());
 				}
 			}
@@ -544,7 +544,7 @@ namespace de4dot.code {
 			var cflowDeobfuscator = new BlocksCflowDeobfuscator(deob.BlocksDeobfuscators);
 			foreach (var method in GetAllMethods()) {
 				if (isVerbose) {
-					Logger.v("Deobfuscating {0} ({1:X8})", Utils.RemoveNewlines(method), method.MDToken.ToUInt32());
+					Logger.v("Deobfuscating {0} ({1:X8})", Utils.ConvertInvalidString(method), method.MDToken.ToUInt32());
 					Logger.Instance.Indent();
 				}
 
@@ -722,7 +722,7 @@ namespace de4dot.code {
 			if (savedMethodBodies != null)
 				savedMethodBodies.Save(method);
 
-			Logger.v("{0}: {1} ({2:X8})", msg, Utils.RemoveNewlines(method), method.MDToken.ToUInt32());
+			Logger.v("{0}: {1} ({2:X8})", msg, Utils.ConvertInvalidString(method), method.MDToken.ToUInt32());
 			Logger.Instance.Indent();
 
 			if (HasNonEmptyBody(method)) {

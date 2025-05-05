@@ -85,10 +85,10 @@ namespace de4dot.code.renamer {
 					bool renameCodeString = module.ObfuscatedFile.RenameResourcesInCode ||
 											IsCallingResourceManagerCtor(instrs, i, typeInfo);
 					if (!renameCodeString)
-						Logger.v("Possible resource name in code: '{0}' => '{1}' in method {2}", Utils.RemoveNewlines(codeString), newName, Utils.RemoveNewlines(method));
+						Logger.v("Possible resource name in code: '{0}' => '{1}' in method {2}", Utils.ConvertInvalidString(codeString), newName, Utils.ConvertInvalidString(method));
 					else {
 						instr.Operand = newName;
-						Logger.v("Renamed resource string in code: '{0}' => '{1}' ({2})", Utils.RemoveNewlines(codeString), newName, Utils.RemoveNewlines(method));
+						Logger.v("Renamed resource string in code: '{0}' => '{1}' ({2})", Utils.ConvertInvalidString(codeString), newName, Utils.ConvertInvalidString(method));
 					}
 				}
 			}
@@ -155,7 +155,7 @@ namespace de4dot.code.renamer {
 				var newName = newTypeName + resource.Name.String.Substring(oldFullName.Length);
 				newNames[resource] = new RenameInfo(resource, info, newName);
 
-				Logger.v("Renamed resource in resources: {0} => {1}", Utils.RemoveNewlines(resource.Name), newName);
+				Logger.v("Renamed resource in resources: {0} => {1}", Utils.ConvertInvalidString(resource.Name), newName);
 				resource.Name = newName;
 			}
 		}

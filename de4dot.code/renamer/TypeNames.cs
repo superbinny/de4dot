@@ -115,7 +115,7 @@ namespace de4dot.code.renamer {
 				if (typeNames.TryGetValue(pair.Key, out var nc))
 					nc.Merge(pair.Value);
 				else
-					typeNames[pair.Key] = pair.Value.Clone();
+					typeNames[pair.Key] = pair.Value.Clone(pair.Key);
 			}
 			genericParamNameCreator.Merge(other.genericParamNameCreator);
 			fnPtrNameCreator.Merge(other.fnPtrNameCreator);

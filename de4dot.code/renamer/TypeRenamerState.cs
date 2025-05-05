@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using dnlib.DotNet;
+using RenameMethod;
 
 namespace de4dot.code.renamer {
 	public class TypeRenamerState {
@@ -32,7 +33,7 @@ namespace de4dot.code.renamer {
 		public TypeRenamerState() {
 			existingNames = new ExistingNames();
 			namespaceToNewName = new Dictionary<string, string>(StringComparer.Ordinal);
-			createNamespaceName = new NameCreator("ns");
+			createNamespaceName = new NameCreator(EnumFlag.PREFIX_NAMESPACE);
 			globalTypeNameCreator = new GlobalTypeNameCreator(existingNames);
 			internalTypeNameCreator = new TypeNameCreator(existingNames);
 		}
@@ -52,7 +53,7 @@ namespace de4dot.code.renamer {
 			var key = $" [{type.Module.Location}] [{asmFullName}] [{type.Module.Name}] [{ns}] ";
 			if (namespaceToNewName.TryGetValue(key, out string newName))
 				return newName;
-			return namespaceToNewName[key] = createNamespaceName.Create();
+			return namespaceToNewName[key] = createNamespaceName.Create(ns);
 		}
 	}
 }

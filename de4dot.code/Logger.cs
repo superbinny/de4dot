@@ -20,7 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml.Linq;
 using dnlib.DotNet;
+using HelpUtil;
 
 namespace de4dot.code {
 	public class Logger : ILogger {
@@ -146,6 +148,12 @@ namespace de4dot.code {
 		}
 
 		void WriteMessage(string indent, string format, params object[] args) {
+			string testFormat = String.Format(format, args);
+			foreach (char c in testFormat) {
+				if (!BaseFunction.IsPrintable(c)) {
+					return;
+				}
+			}
 			if (args == null || args.Length == 0)
 				streamWriter.WriteLine("{0}{1}", indent, format);
 			else
