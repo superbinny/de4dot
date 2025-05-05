@@ -19,6 +19,8 @@
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using HelpUtil;
+using RenameMethod;
 
 namespace de4dot.code {
 	public class NameRegex {
@@ -67,10 +69,12 @@ namespace de4dot.code {
 
 		public bool IsMatch(string s) {
 			foreach (var regex in regexes) {
-				if (regex.IsMatch(s))
-					return regex.MatchValue;
+				if (regex.IsMatch(s)) {
+					// 继续检查类似Guid、<>name、<??>name 等情况
+					if (NameManager.CheckValidSpecialName(s))
+						return regex.MatchValue;
+				}
 			}
-
 			return DefaultValue;
 		}
 

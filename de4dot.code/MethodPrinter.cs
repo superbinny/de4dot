@@ -134,9 +134,9 @@ namespace de4dot.code {
 				if (operandString == "")
 					Logger.Log(loggerEvent, "{0}", instrString);
 				else if (memberRef != null)
-					Logger.Log(loggerEvent, "{0,-9} {1} // {2:X8}", instrString, Utils.RemoveNewlines(operandString), memberRef.MDToken.ToUInt32());
+					Logger.Log(loggerEvent, "{0,-9} {1} // {2:X8}", instrString, Utils.ConvertInvalidString(operandString), memberRef.MDToken.ToUInt32());
 				else
-					Logger.Log(loggerEvent, "{0,-9} {1}", instrString, Utils.RemoveNewlines(operandString));
+					Logger.Log(loggerEvent, "{0,-9} {1}", instrString, Utils.ConvertInvalidString(operandString));
 			}
 			PrintExInfo(lastExInfo);
 			Logger.Instance.DeIndent();

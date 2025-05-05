@@ -368,6 +368,8 @@ namespace de4dot.code {
 			}
 
 			deob.DeobfuscateBegin();
+			// 反编译IL汇编指令，以后再判断
+			// 同时去掉冗余的死IL代码
 			DeobfuscateMethods();
 			deob.DeobfuscateEnd();
 		}

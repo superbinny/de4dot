@@ -126,6 +126,8 @@ namespace de4dot.cui {
 		void DeobfuscateAll() {
 			var allFiles = new List<IObfuscatedFile>(LoadAllFiles());
 			try {
+				// 先反编译全部文件，不做名字反混淆处理
+				// 顺便去掉反编译中的死代码
 				DeobfuscateAllFiles(allFiles);
 				Rename(allFiles);
 				SaveAllFiles(allFiles);

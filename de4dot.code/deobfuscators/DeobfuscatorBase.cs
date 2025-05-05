@@ -24,10 +24,12 @@ using dnlib.DotNet.Emit;
 using dnlib.DotNet.Writer;
 using dnlib.PE;
 using de4dot.blocks;
-using de4dot.blocks.cflow;
 
 namespace de4dot.code.deobfuscators {
 	public abstract class DeobfuscatorBase : IDeobfuscator, IModuleWriterListener {
+		// 这个是判断合法性的正则表达式，所以类似 Guid、<>name、<??>name 都混过检查了，后面应该做特殊处理
+		// 不过程序中保留了插件增强功能，通过继承 本类来丰富各种处理，但是这里是基本的混淆功能，所以决定直接加入主程序中
+		// 至于将来遇到特殊情况的时候，再针对混淆器写扩展类算法
 		public const string DEFAULT_VALID_NAME_REGEX = @"^[a-zA-Z_<{$][a-zA-Z_0-9<>{}$.`-]*$";
 		public const string DEFAULT_ASIAN_VALID_NAME_REGEX = @"^[\u2E80-\u9FFFa-zA-Z_<{$][\u2E80-\u9FFFa-zA-Z_0-9<>{}$.`-]*$";
 

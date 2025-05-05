@@ -51,7 +51,8 @@ namespace de4dot.code.renamer {
 
 			var typeFullName = typeRef.FullName;
 			if (typeNames.TryGetValue(typeFullName, out var nc))
-				return nc.Create();
+				if (nc.new_prefix != null)
+					return nc.Create();
 
 			var fullName = elementType == null ? typeRef.FullName : elementType.FullName;
 			var dict = prefix == "" ? fullNameToShortName : fullNameToShortNamePrefix;
@@ -101,7 +102,9 @@ namespace de4dot.code.renamer {
 			var name2 = " " + newName;
 			if (!typeNames.TryGetValue(name2, out var nc))
 				typeNames[name2] = nc = new NameCreator(newName + "_");
-
+			if (nc.new_prefix == null) {
+				nc.new_prefix = newName + "_";
+			}
 			typeNames[fullName] = nc;
 			return nc;
 		}

@@ -17,6 +17,7 @@
     along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using dnlib.DotNet;
@@ -67,7 +68,7 @@ namespace de4dot.code.renamer {
 
 	public class NameCreator : NameCreatorCounter {
 		EnumFlag prefix;
-		string new_prefix;
+		public string new_prefix;
 		string oldName;
 		public NameCreator(EnumFlag prefix) : this(prefix, 0) { }
 		public NameCreator(string new_prefix) : this(new_prefix, 0) { }
@@ -94,8 +95,12 @@ namespace de4dot.code.renamer {
 		public NameCreator Clone(string oldName) => new NameCreator(prefix, oldName, num);
 		// public override string Create() => prefix + num++;
 		public override string Create() {
-			if (prefix == EnumFlag.PREFIX_ADDNEW)
+			if (prefix == EnumFlag.PREFIX_ADDNEW) {
+				if (this.new_prefix == "" || this.new_prefix == null) {
+					throw new ApplicationException($"Don't allow new_prefix is null");
+				}
 				return this.new_prefix + num++;
+			}
 			else
 				return prefix.GetString() + num++;
 		}
