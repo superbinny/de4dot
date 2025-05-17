@@ -213,7 +213,7 @@ namespace de4dot.code.renamer {
 			this.existingNames = existingNames;
 			createUnknownTypeName = CreateNameCreator(EnumFlag.PREFIX_TYPE);
 			createEnumName = CreateNameCreator(EnumFlag.PREFIX_ENUM);
-			createStructName = CreateNameCreator(EnumFlag.PREFIX_STRUCT);
+			createStructName = CreateNameCreator(EnumFlag.PREFIX_STRUCTURE);
 			createDelegateName = CreateNameCreator(EnumFlag.PREFIX_DELEGATE);
 			createClassName = CreateNameCreator(EnumFlag.PREFIX_CLASS);
 			createInterfaceName = CreateNameCreator(EnumFlag.PREFIX_INTERFACE);

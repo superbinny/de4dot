@@ -24,6 +24,7 @@ using de4dot.blocks;
 using de4dot.code.renamer.asmmodules;
 using dnlib.DotNet;
 using dnlib.DotNet.Resources;
+using HelpUtil;
 
 namespace de4dot.code.renamer {
 	[Flags]
@@ -1115,10 +1116,10 @@ namespace de4dot.code.renamer {
 				memberInfos.Type(typeDef).InitializeEventHandlerNames();
 
 			prepareHelper.Prepare((info) => info.PrepareRenameMethods());
-			ifaceMethods.VisitAll((group) => PrepareRenameVirtualMethods(group, "imethod_", false));
-			virtualMethods.VisitAll((group) => PrepareRenameVirtualMethods(group, "vmethod_", false));
-			ifaceMethods.VisitAll((group) => PrepareRenameVirtualMethods(group, "imethod_", true));
-			virtualMethods.VisitAll((group) => PrepareRenameVirtualMethods(group, "vmethod_", true));
+			ifaceMethods.VisitAll((group) => PrepareRenameVirtualMethods(group, EnumFlag.PREFIX_INTERFACE_METHOD, false));
+			virtualMethods.VisitAll((group) => PrepareRenameVirtualMethods(group, EnumFlag.PREFIX_VIRTUAL_METHOD, false));
+			ifaceMethods.VisitAll((group) => PrepareRenameVirtualMethods(group, EnumFlag.PREFIX_INTERFACE_METHOD, true));
+			virtualMethods.VisitAll((group) => PrepareRenameVirtualMethods(group, EnumFlag.PREFIX_VIRTUAL_METHOD, true));
 
 			RestoreMethodArgs(groups);
 
@@ -1356,7 +1357,7 @@ namespace de4dot.code.renamer {
 				newEventName = oldEventName;
 			else {
 				mergeStateHelper.Merge(MergeStateFlags.Events, group);
-				newEventName = GetAvailableName("Event_", false, group, (group2, newName) => IsEventAvailable(group2, newName));
+				newEventName = GetAvailableName(EnumFlag.PREFIX_EVENT, false, group, (group2, newName) => IsEventAvailable(group2, newName));
 			}
 
 			var newEventNameWithPrefix = overridePrefix + newEventName;
@@ -1469,7 +1470,12 @@ namespace de4dot.code.renamer {
 					propPrefix = GetNewPropertyNamePrefix(group);
 				}
 				mergeStateHelper.Merge(MergeStateFlags.Properties, group);
-				newPropName = GetAvailableName(propPrefix, trySameName, group, (group2, newName) => IsPropertyAvailable(group2, newName));
+				newPropName = GetAvailableName(
+					EnumFlag.PREFIX_ADDNEW, 
+					trySameName, 
+					group,
+					(group2, newName) => IsPropertyAvailable(group2, newName),
+					propPrefix);
 			}
 
 			var newPropNameWithPrefix = overridePrefix + newPropName;
@@ -1634,7 +1640,7 @@ namespace de4dot.code.renamer {
 			return null;
 		}
 
-		void PrepareRenameVirtualMethods(MethodNameGroup group, string namePrefix, bool renameOverrides) {
+		void PrepareRenameVirtualMethods(MethodNameGroup group, EnumFlag namePrefix, bool renameOverrides) {
 			if (!HasInvalidMethodName(group))
 				return;
 
@@ -1752,9 +1758,20 @@ namespace de4dot.code.renamer {
 			return false;
 		}
 
-		static string GetAvailableName(string prefix, bool tryWithoutZero, MethodNameGroup group, Func<MethodNameGroup, string, bool> checkAvailable) {
+		static string GetAvailableName(
+			EnumFlag prefix, bool tryWithoutZero, 
+			MethodNameGroup group, 
+			Func<MethodNameGroup, string, bool> checkAvailable,
+			string add_new =null) {
+			string name = String.Empty;
+			if (prefix == EnumFlag.PREFIX_ADDNEW) {
+				name = add_new;
+			}
+			else {
+				name = prefix.GetString();
+			}
 			for (int i = 0; ; i++) {
-				string newName = i == 0 && tryWithoutZero ? prefix : prefix + i;
+				string newName = i == 0 && tryWithoutZero ? name : name + i;
 				if (checkAvailable(group, newName))
 					return newName;
 			}

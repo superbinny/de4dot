@@ -18,6 +18,7 @@
 */
 
 using dnlib.DotNet;
+using HelpUtil;
 
 namespace de4dot.code.renamer {
 	public class VariableNameState {
@@ -40,10 +41,10 @@ namespace de4dot.code.renamer {
 			vns.existingEventNames = new ExistingNames();
 			vns.variableNameCreator = new VariableNameCreator();
 			vns.propertyNameCreator = new PropertyNameCreator();
-			vns.eventNameCreator = new NameCreator("Event_");
-			vns.genericPropertyNameCreator = new NameCreator("Prop_");
-			vns.staticMethodNameCreator = new NameCreator("smethod_");
-			vns.instanceMethodNameCreator = new NameCreator("method_");
+			vns.eventNameCreator = new NameCreator(EnumFlag.PREFIX_EVENT);
+			vns.genericPropertyNameCreator = new NameCreator(EnumFlag.PREFIX_PROPERTY);
+			vns.staticMethodNameCreator = new NameCreator(EnumFlag.PREFIX_STATIC_METHOD);
+			vns.instanceMethodNameCreator = new NameCreator(EnumFlag.PREFIX_METHOD);
 			return vns;
 		}
 
