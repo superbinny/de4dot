@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using dnlib.DotNet;
-using RenameMethod;
+using HelpUtil;
 
 namespace de4dot.code.renamer {
 	public interface INameCreator {

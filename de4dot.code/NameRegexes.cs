@@ -20,7 +20,6 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using HelpUtil;
-using RenameMethod;
 
 namespace de4dot.code {
 	public class NameRegex {

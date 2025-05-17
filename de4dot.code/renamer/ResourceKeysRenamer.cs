@@ -41,7 +41,7 @@ namespace de4dot.code.renamer {
 			this.nameChecker = nameChecker;
 		}
 
-		public void Rename() {
+		public void Rename(int level) {
 			Logger.v("Renaming resource keys ({0})", module);
 			Logger.Instance.Indent();
 			foreach (var type in module.GetTypes()) {
@@ -55,7 +55,7 @@ namespace de4dot.code.renamer {
 				}
 				Logger.v("Resource: {0}", Utils.ToCsharpString(resource.Name));
 				Logger.Instance.Indent();
-				Rename(type, resource);
+				Rename(type, resource, level: level);
 				Logger.Instance.DeIndent();
 			}
 			Logger.Instance.DeIndent();
@@ -118,7 +118,7 @@ namespace de4dot.code.renamer {
 			public override string ToString() => $"{element} => {newName}";
 		}
 
-		void Rename(TypeDef type, EmbeddedResource resource) {
+		void Rename(TypeDef type, EmbeddedResource resource,int level) {
 			newNames.Clear();
 			var resourceSet = ResourceReader.Read(module, resource.CreateReader());
 			var renamed = new List<RenameInfo>();
@@ -134,7 +134,7 @@ namespace de4dot.code.renamer {
 			if (renamed.Count == 0)
 				return;
 
-			Rename(type, renamed);
+			Rename(type, renamed, level: level);
 
 			var outStream = new MemoryStream();
 			ResourceWriter.Write(module, outStream, resourceSet);
@@ -145,7 +145,7 @@ namespace de4dot.code.renamer {
 			module.Resources[resourceIndex] = newResource;
 		}
 
-		void Rename(TypeDef type, List<RenameInfo> renamed) {
+		void Rename(TypeDef type, List<RenameInfo> renamed, int level) {
 			var nameToInfo = new Dictionary<string, RenameInfo>(StringComparer.Ordinal);
 			foreach (var info in renamed)
 				nameToInfo[info.element.Name] = info;

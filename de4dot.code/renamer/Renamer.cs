@@ -20,10 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using dnlib.DotNet;
-using de4dot.code.renamer.asmmodules;
-using dnlib.DotNet.Resources;
 using de4dot.blocks;
+using de4dot.code.renamer.asmmodules;
+using dnlib.DotNet;
+using dnlib.DotNet.Resources;
 
 namespace de4dot.code.renamer {
 	[Flags]
@@ -186,16 +186,15 @@ namespace de4dot.code.renamer {
 
 		public Renamer(IDeobfuscatorContext deobfuscatorContext, IEnumerable<IObfuscatedFile> files, RenamerFlags flags) {
 			RenamerFlags = flags;
-
 			WarnIfXaml(files);
-
 			modules = new Modules(deobfuscatorContext);
 			isDelegateClass = new DerivedFrom(delegateClasses);
 			mergeStateHelper = new MergeStateHelper(memberInfos);
 
 			foreach (var file in files)
-				modules.Add(new Module(file));
+				modules.Add(new asmmodules.Module(file));
 		}
+
 
 		static void WarnIfXaml(IEnumerable<IObfuscatedFile> files) {
 			foreach (var file in files) {
@@ -209,7 +208,6 @@ namespace de4dot.code.renamer {
 						continue;
 					if (!HasXamlFiles(file.ModuleDefMD, rsrc))
 						continue;
-
 					Logger.w("File '{0}' contains XAML which isn't supported. Use --dont-rename.", file.Filename);
 					return;
 				}
@@ -229,33 +227,33 @@ namespace de4dot.code.renamer {
 			return false;
 		}
 
-		public void Rename() {
+		public void Rename(int level = 0) {
 			if (modules.Empty)
 				return;
 			isVerbose = !Logger.Instance.IgnoresEvent(LoggerEvent.Verbose);
 			Logger.n("Renaming all obfuscated symbols");
 
 			modules.Initialize();
-			RenameResourceKeys();
+			RenameResourceKeys(level: level);
 			var groups = modules.InitializeVirtualMembers();
 			memberInfos.Initialize(modules);
-			RenameTypeDefs();
-			RenameTypeRefs();
+			RenameTypeDefs(level: level);
+			RenameTypeRefs(level: level);
 			modules.OnTypesRenamed();
 			RestorePropertiesAndEvents(groups);
 			PrepareRenameMemberDefs(groups);
-			RenameMemberDefs();
-			RenameMemberRefs();
+			RenameMemberDefs(level: level);
+			RenameMemberRefs(level: level);
 			RemoveUselessOverrides(groups);
-			RenameResources();
+			RenameResources(level: level);
 			modules.CleanUp();
 		}
 
-		void RenameResourceKeys() {
+		void RenameResourceKeys(int level) {
 			foreach (var module in modules.TheModules) {
 				if (!module.ObfuscatedFile.RenameResourceKeys)
 					continue;
-				new ResourceKeysRenamer(module.ModuleDefMD, module.ObfuscatedFile.NameChecker).Rename();
+				new ResourceKeysRenamer(module.ModuleDefMD, module.ObfuscatedFile.NameChecker).Rename(level: level);
 			}
 		}
 
@@ -283,7 +281,7 @@ namespace de4dot.code.renamer {
 			}
 		}
 
-		void RenameTypeDefs() {
+		void RenameTypeDefs(int level) {
 			if (isVerbose)
 				Logger.v("Renaming obfuscated type definitions");
 
@@ -297,10 +295,10 @@ namespace de4dot.code.renamer {
 				state.AddTypeName(memberInfos.Type(type).oldName);
 			PrepareRenameTypes(modules.BaseTypes, state);
 			FixClsTypeNames();
-			RenameTypeDefs(modules.NonNestedTypes);
+			RenameTypeDefs(modules.NonNestedTypes, level: level);
 		}
 
-		void RemoveOneClassNamespaces(Module module) {
+		void RemoveOneClassNamespaces(asmmodules.Module module) {
 			var nsToTypes = new Dictionary<string, List<MTypeDef>>(StringComparer.Ordinal);
 
 			foreach (var typeDef in module.GetAllTypes()) {
@@ -329,16 +327,16 @@ namespace de4dot.code.renamer {
 			}
 		}
 
-		void RenameTypeDefs(IEnumerable<MTypeDef> typeDefs) {
+		void RenameTypeDefs(IEnumerable<MTypeDef> typeDefs, int level) {
 			Logger.Instance.Indent();
 			foreach (var typeDef in typeDefs) {
-				Rename(typeDef);
-				RenameTypeDefs(typeDef.NestedTypes);
+				Rename(typeDef, level: level+1);
+				RenameTypeDefs(typeDef.NestedTypes, level: level+1);
 			}
 			Logger.Instance.DeIndent();
 		}
 
-		void Rename(MTypeDef type) {
+		void Rename(MTypeDef type, int level) {
 			var typeDef = type.TypeDef;
 			var info = memberInfos.Type(type);
 
@@ -346,26 +344,32 @@ namespace de4dot.code.renamer {
 				Logger.v("Type: {0} ({1:X8})", Utils.ConvertInvalidString(typeDef.FullName), typeDef.MDToken.ToUInt32());
 			Logger.Instance.Indent();
 
-			RenameGenericParams2(type.GenericParams);
+			RenameGenericParams2(type.GenericParams, level: level + 1);
 
 			if (RenameTypes && info.GotNewName()) {
 				var old = typeDef.Name;
 				typeDef.Name = info.newName;
+				string _old = Utils.ConvertInvalidString(old);
+				string _new = Utils.ConvertInvalidString(typeDef.Name);
 				if (isVerbose)
-					Logger.v("Name: {0} => {1}", Utils.ConvertInvalidString(old), Utils.ConvertInvalidString(typeDef.Name));
+					Logger.v("Name: {0} => {1}", _old, _new);
+				Logger.r("Name", _old, _new, level: level + 1);
 			}
 
 			if (RenameNamespaces && info.newNamespace != null) {
 				var old = typeDef.Namespace;
 				typeDef.Namespace = info.newNamespace;
+				string _old = Utils.ConvertInvalidString(old);
+				string _new = Utils.ConvertInvalidString(typeDef.Namespace);
 				if (isVerbose)
-					Logger.v("Namespace: {0} => {1}", Utils.ConvertInvalidString(old), Utils.ConvertInvalidString(typeDef.Namespace));
+					Logger.v("Namespace: {0} => {1}", _old, _new);
+				Logger.r("Namespace", _old, _new, level: level + 1);
 			}
 
 			Logger.Instance.DeIndent();
 		}
 
-		void RenameGenericParams2(IEnumerable<MGenericParamDef> genericParams) {
+		void RenameGenericParams2(IEnumerable<MGenericParamDef> genericParams,int level) {
 			if (!RenameGenericParams)
 				return;
 			foreach (var param in genericParams) {
@@ -373,12 +377,15 @@ namespace de4dot.code.renamer {
 				if (!info.GotNewName())
 					continue;
 				param.GenericParam.Name = info.newName;
+				string _old = Utils.ConvertInvalidString(info.oldFullName);
+				string _new = Utils.ConvertInvalidString(param.GenericParam.FullName);
 				if (isVerbose)
-					Logger.v("GenParam: {0} => {1}", Utils.ConvertInvalidString(info.oldFullName), Utils.ConvertInvalidString(param.GenericParam.FullName));
+					Logger.v("GenParam: {0} => {1}", _old, _new);
+				Logger.r("GenParam", _old, _new, level: level);
 			}
 		}
 
-		void RenameMemberDefs() {
+		void RenameMemberDefs(int level) {
 			if (isVerbose)
 				Logger.v("Renaming member definitions #2");
 
@@ -387,26 +394,26 @@ namespace de4dot.code.renamer {
 
 			Logger.Instance.Indent();
 			foreach (var typeDef in allTypes)
-				RenameMembers(typeDef);
+				RenameMembers(typeDef, level: level + 1);
 			Logger.Instance.DeIndent();
 		}
 
-		void RenameMembers(MTypeDef type) {
+		void RenameMembers(MTypeDef type, int level) {
 			var info = memberInfos.Type(type);
 
 			if (isVerbose)
 				Logger.v("Type: {0}", Utils.ConvertInvalidString(info.type.TypeDef.FullName));
 			Logger.Instance.Indent();
 
-			RenameFields2(info);
-			RenameProperties2(info);
-			RenameEvents2(info);
-			RenameMethods2(info);
+			RenameFields2(info, level: level+1);
+			RenameProperties2(info, level: level + 1);
+			RenameEvents2(info, level: level + 1);
+			RenameMethods2(info, level: level + 1);
 
 			Logger.Instance.DeIndent();
 		}
 
-		void RenameFields2(TypeInfo info) {
+		void RenameFields2(TypeInfo info, int level) {
 			if (!RenameFields)
 				return;
 			bool isDelegateType = isDelegateClass.Check(info.type);
@@ -417,15 +424,18 @@ namespace de4dot.code.renamer {
 				if (isDelegateType && DontRenameDelegateFields)
 					continue;
 				fieldDef.FieldDef.Name = fieldInfo.newName;
+				string _old = Utils.ConvertInvalidString(fieldInfo.oldFullName);
+				string _new = Utils.ConvertInvalidString(fieldDef.FieldDef.FullName);
 				if (isVerbose)
 					Logger.v("Field: {0} ({1:X8}) => {2}",
-							Utils.ConvertInvalidString(fieldInfo.oldFullName),
+							_old,
 							fieldDef.FieldDef.MDToken.ToUInt32(),
-							Utils.ConvertInvalidString(fieldDef.FieldDef.FullName));
+							_new);
+				Logger.r("Field", _old, _new, level: level);
 			}
 		}
 
-		void RenameProperties2(TypeInfo info) {
+		void RenameProperties2(TypeInfo info, int level) {
 			if (!RenameProperties)
 				return;
 			foreach (var propDef in info.type.AllPropertiesSorted) {
@@ -433,15 +443,18 @@ namespace de4dot.code.renamer {
 				if (!propInfo.GotNewName())
 					continue;
 				propDef.PropertyDef.Name = propInfo.newName;
+				string _old = Utils.ConvertInvalidString(propInfo.oldFullName);
+				string _new = Utils.ConvertInvalidString(propDef.PropertyDef.FullName);
 				if (isVerbose)
 					Logger.v("Property: {0} ({1:X8}) => {2}",
-							Utils.ConvertInvalidString(propInfo.oldFullName),
+							_old,
 							propDef.PropertyDef.MDToken.ToUInt32(),
-							Utils.ConvertInvalidString(propDef.PropertyDef.FullName));
+							_new);
+				Logger.r("Property", _old, _new, level: level);
 			}
 		}
 
-		void RenameEvents2(TypeInfo info) {
+		void RenameEvents2(TypeInfo info, int level) {
 			if (!RenameEvents)
 				return;
 			foreach (var eventDef in info.type.AllEventsSorted) {
@@ -449,15 +462,18 @@ namespace de4dot.code.renamer {
 				if (!eventInfo.GotNewName())
 					continue;
 				eventDef.EventDef.Name = eventInfo.newName;
+				string _old = Utils.ConvertInvalidString(eventInfo.oldFullName);
+				string _new = Utils.ConvertInvalidString(eventDef.EventDef.FullName);
 				if (isVerbose)
 					Logger.v("Event: {0} ({1:X8}) => {2}",
-							Utils.ConvertInvalidString(eventInfo.oldFullName),
+							_old,
 							eventDef.EventDef.MDToken.ToUInt32(),
-							Utils.ConvertInvalidString(eventDef.EventDef.FullName));
+							_new);
+		        Logger.r("Event", _old, _new, level: level);
 			}
 		}
 
-		void RenameMethods2(TypeInfo info) {
+		void RenameMethods2(TypeInfo info, int level) {
 			if (!RenameMethods && !RenameMethodArgs && !RenameGenericParams)
 				return;
 			foreach (var methodDef in info.type.AllMethodsSorted) {
@@ -466,12 +482,15 @@ namespace de4dot.code.renamer {
 					Logger.v("Method {0} ({1:X8})", Utils.ConvertInvalidString(methodInfo.oldFullName), methodDef.MethodDef.MDToken.ToUInt32());
 				Logger.Instance.Indent();
 
-				RenameGenericParams2(methodDef.GenericParams);
+				RenameGenericParams2(methodDef.GenericParams, level: level + 1);
 
 				if (RenameMethods && methodInfo.GotNewName()) {
 					methodDef.MethodDef.Name = methodInfo.newName;
+					string _old = Utils.ConvertInvalidString(methodInfo.oldFullName);
+					string _new = Utils.ConvertInvalidString(methodDef.MethodDef.FullName);
 					if (isVerbose)
-						Logger.v("Name: {0} => {1}", Utils.ConvertInvalidString(methodInfo.oldFullName), Utils.ConvertInvalidString(methodDef.MethodDef.FullName));
+						Logger.v("Name: {0} => {1}", _old, _new);
+					Logger.r("Name", _old, _new, level: level + 1);
 				}
 
 				if (RenameMethodArgs) {
@@ -485,20 +504,28 @@ namespace de4dot.code.renamer {
 							param.ParameterDef.CreateParamDef();
 						}
 						param.ParameterDef.Name = paramInfo.newName;
-						if (isVerbose) {
-							if (param.IsReturnParameter)
-								Logger.v("RetParam: {0} => {1}", Utils.ConvertInvalidString(paramInfo.oldName), Utils.ConvertInvalidString(paramInfo.newName));
-							else
-								Logger.v("Param ({0}/{1}): {2} => {3}", param.ParameterDef.MethodSigIndex + 1, methodDef.MethodDef.MethodSig.GetParamCount(), Utils.ConvertInvalidString(paramInfo.oldName), Utils.ConvertInvalidString(paramInfo.newName));
+						string _old = Utils.ConvertInvalidString(paramInfo.oldName);
+						string _new = Utils.ConvertInvalidString(paramInfo.newName);
+						if (param.IsReturnParameter){
+							if (isVerbose) 
+								Logger.v("RetParam: {0} => {1}", _old, _new);
+							Logger.r("RetParam", _old, _new, level: level + 1);
+						}
+						else{
+							if (isVerbose) 
+								Logger.v("Param ({0}/{1}): {2} => {3}",
+									param.ParameterDef.MethodSigIndex + 1,
+									methodDef.MethodDef.MethodSig.GetParamCount(), 
+									_old, _new);
+							Logger.r("Param", _old, _new, level: level + 1);
 						}
 					}
 				}
-
 				Logger.Instance.DeIndent();
 			}
 		}
 
-		void RenameMemberRefs() {
+		void RenameMemberRefs(int level) {
 			if (isVerbose)
 				Logger.v("Renaming references to other definitions");
 			foreach (var module in modules.TheModules) {
@@ -517,19 +544,19 @@ namespace de4dot.code.renamer {
 			}
 		}
 
-		void RenameResources() {
+		void RenameResources(int level) {
 			if (isVerbose)
 				Logger.v("Renaming resources");
 			foreach (var module in modules.TheModules) {
 				if (modules.TheModules.Count > 1 && isVerbose)
 					Logger.v("Renaming resources ({0})", module.Filename);
 				Logger.Instance.Indent();
-				RenameResources(module);
+				RenameResources(module, level:level+1);
 				Logger.Instance.DeIndent();
 			}
 		}
 
-		void RenameResources(Module module) {
+		void RenameResources(asmmodules.Module module,int level) {
 			var renamedTypes = new List<TypeInfo>();
 			foreach (var type in module.GetAllTypes()) {
 				var info = memberInfos.Type(type);
@@ -567,7 +594,7 @@ namespace de4dot.code.renamer {
 			}
 		}
 
-		void RenameTypeRefs() {
+		void RenameTypeRefs(int level) {
 			if (isVerbose)
 				Logger.v("Renaming references to type definitions");
 			var theModules = modules.TheModules;

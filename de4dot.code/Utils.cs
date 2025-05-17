@@ -99,23 +99,9 @@ namespace de4dot.code {
 
 		public static string RemoveNewlines(object o) => RemoveNewlines(o.ToString());
 		public static string RemoveNewlines(string s) => s.Replace('\n', ' ').Replace('\r', ' ');
+		public static string ConvertInvalidString(object o) => BaseFunction.ConvertInvalidString(o.ToString());
+		public static string ConvertInvalidString(string s) => BaseFunction.ConvertInvalidString(s);
 
-		public static string ConvertInvalidString(object o) => ConvertInvalidString(o.ToString());
-		public static string ConvertInvalidString(string s) {
-			s = RemoveNewlines(s);
-			// 可能出现 \u0001\u0009 等情况
-			string new_msg = "";
-			foreach (char c in s) {
-				if (Char.IsControl(c) && c != '\t' && c != '\n') {
-					int al = (int)c;
-					new_msg += "\\x" + al.ToString("X4");
-				}
-				else {
-					new_msg += c.ToString();
-				}
-			}
-			return new_msg;
-		}
 		public static string GetFullPath(string path) {
 			try {
 				return Path.GetFullPath(path);

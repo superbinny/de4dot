@@ -21,16 +21,16 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using AssemblyData;
+using de4dot.blocks;
+using de4dot.blocks.cflow;
+using de4dot.code.AssemblyClient;
+using de4dot.code.deobfuscators;
+using de4dot.code.renamer;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using dnlib.DotNet.Writer;
 using dnlib.PE;
-using AssemblyData;
-using de4dot.code.deobfuscators;
-using de4dot.blocks;
-using de4dot.blocks.cflow;
-using de4dot.code.AssemblyClient;
-using de4dot.code.renamer;
 
 namespace de4dot.code {
 	public class ObfuscatedFile : IObfuscatedFile, IDeobfuscatedFile {

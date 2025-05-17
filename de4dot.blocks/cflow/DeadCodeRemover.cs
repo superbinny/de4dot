@@ -284,6 +284,7 @@ namespace de4dot.blocks.cflow {
 				case Code.Stelem_R4:
 				case Code.Stelem_R8:
 				case Code.Stelem_Ref:
+				case Code.Await:
 				case Code.Stfld:
 				case Code.Stind_I:
 				case Code.Stind_I1:

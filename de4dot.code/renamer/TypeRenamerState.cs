@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using dnlib.DotNet;
-using RenameMethod;
+using HelpUtil;
 
 namespace de4dot.code.renamer {
 	public class TypeRenamerState {

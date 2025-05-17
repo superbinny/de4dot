@@ -35,6 +35,8 @@ namespace de4dot.code {
 		Dictionary<string, bool> ignoredMessages = new(StringComparer.Ordinal);
 		int numIgnoredMessages;
 		bool canIgnoreMessages;
+		NameManager nameManager = new NameManager();
+		BaseFunction baseFunc = new BaseFunction();
 
 		public int IndentLevel {
 			get => indentLevel;
@@ -54,6 +56,13 @@ namespace de4dot.code {
 			set => maxLoggerEvent = value;
 		}
 
+		public void Close() {
+            if (streamWriter != null) {
+                streamWriter.Close();
+            }
+			this.baseFunc.EndWriteJson();
+		}
+
 		public bool CanIgnoreMessages {
 			get => canIgnoreMessages;
 			set => canIgnoreMessages = value;
@@ -68,6 +77,12 @@ namespace de4dot.code {
 				if (streamWriter != null) {
 					streamWriter.Close();
 				}
+				nameManager.BaseFunc = this.baseFunc;
+				string baseLogFile = BaseFunction.GetBaseFileName(logFile);
+				string jsonFile = BaseFunction.GetNewFileName(logFile, baseLogFile + ".json");
+				File.Delete(jsonFile);
+				this.nameManager.BaseFunc.BeginWriteJson(jsonFile);
+
 				streamWriter = new StreamWriter(logFile) { AutoFlush = true };
 				IsWriteToFile = true;
 			}
@@ -87,6 +102,7 @@ namespace de4dot.code {
 		public Logger(int indentSize, bool canIgnoreMessages, string logFile) {
 			this.indentSize = indentSize;
 			this.canIgnoreMessages = canIgnoreMessages;
+			nameManager.BaseFunc = this.baseFunc;
 			LogFile = logFile;
 			IsWriteToFile = true;
 		}
@@ -107,6 +123,9 @@ namespace de4dot.code {
 			InitIndentString();
 		}
 
+		public void Rename(object sender, string reason, string old_name, string new_name, int level = 0) {
+			nameManager.WriteTypeChange(reason, old_name, new_name, level: level);
+		}
 		public void Log(object sender, LoggerEvent loggerEvent, string format, params object[] args) => Log(true, sender, loggerEvent, format, args);
 		public void LogErrorDontIgnore(string format, params object[] args) => Log(false, null, LoggerEvent.Error, format, args);
 
@@ -178,5 +197,6 @@ namespace de4dot.code {
 		public static void n(string format, params object[] args) => Instance.Log(null, LoggerEvent.Info, format, args);
 		public static void v(string format, params object[] args) => Instance.Log(null, LoggerEvent.Verbose, format, args);
 		public static void vv(string format, params object[] args) => Instance.Log(null, LoggerEvent.VeryVerbose, format, args);
+		public static void r(string reason, string old_name, string new_name,int level=0) => Instance.Rename(null, reason, old_name,new_name, level: level);
 	}
 }

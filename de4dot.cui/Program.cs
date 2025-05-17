@@ -148,7 +148,7 @@ namespace de4dot.cui {
 				catch (InvalidOperationException) {
 				}
 			}
-
+			Logger.Instance.Close();
 			return exitCode;
 		}
 
